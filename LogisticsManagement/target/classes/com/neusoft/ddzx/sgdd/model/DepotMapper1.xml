@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neusoft.ddzx.sgdd.model.DepotMapper1">
+	<!-- 查询库房 -->
+	<resultMap type="Depot" id="depotMap">
+	<id property="depotId" column="DEPOT_ID"/>
+	<result property="depotName" column="DEPOT_NAME"/>
+	</resultMap>
+	<select id="queryDepot" resultMap="depotMap">
+	select DEPOT_ID,DEPOT_NAME from DEPOT
+	</select>
+</mapper>

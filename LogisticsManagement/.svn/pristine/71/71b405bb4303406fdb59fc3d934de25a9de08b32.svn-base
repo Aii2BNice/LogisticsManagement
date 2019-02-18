@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.pszxgl.supplier.model.SupplierMapper">
+
+	<resultMap type="Supplier" id="SupplierMap">
+		<id property="id" column="sup_id" />
+		<result property="name" column="sup_name" />
+		<result property="contactName" column="contact_name" />
+		<result property="contactPhone" column="contact_phone" />
+		<result property="openingBank" column="opening_bank" />
+		<result property="accountNumber" column="account_number" />
+		<result property="artificalPerson" column="artifical_person" />
+	</resultMap>
+
+	<!-- 查询供应商全部数据 -->
+	<select id="queryAll" resultMap="SupplierMap">
+		SELECT
+			sup_id,sup_name,address,contact_name,
+			contact_phone,opening_bank,account_number,fax,
+			postcode,artifical_person,remark
+		FROM supplier
+		<include refid="queryPageSql" />
+	</select>
+
+	<!-- 通过Id查询供应商数据 -->
+	<select id="queryById" parameterType="int" resultMap="SupplierMap">
+		SELECT
+			sup_id,sup_name,address,contact_name,
+			contact_phone,opening_bank,account_number,fax,
+			postcode,artifical_person,remark
+		FROM supplier
+		where sup_id = #{id}
+	</select>
+	
+	<!-- 增加供应商数据 -->
+	<insert id="add">
+		insert into supplier
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id!=null">
+				sup_id,
+			</if>
+			<if test="name!=null">
+				sup_name,
+			</if>
+			<if test="address!=null">
+				address,
+			</if>
+			<if test="contactName!=null">
+				contact_name,
+			</if>
+			<if test="contactPhone!=null">
+				contact_phone,
+			</if>
+			<if test="openingBank!=null">
+				opening_bank,
+			</if>
+			<if test="accountNumber!=null">
+				account_number,
+			</if>
+			<if test="fax!=null">
+				fax,
+			</if>
+			<if test="postcode!=null">
+				postcode,
+			</if>
+			<if test="artificalPerson!=null">
+				artifical_person,
+			</if>
+			<if test="remark!=null">
+				remark,
+			</if>
+			
+		</trim>
+		<trim prefix="values(" suffix=")" suffixOverrides=",">
+			<if test="id!=null">
+				#{id},
+			</if>
+			<if test="name!=null">
+				#{name},
+			</if>
+			<if test="address!=null">
+				#{address},
+			</if>
+			<if test="contactName!=null">
+				#{contactName},
+			</if>
+			<if test="contactPhone!=null">
+				#{contactPhone},
+			</if>
+			<if test="openingBank!=null">
+				#{openingBank},
+			</if>
+			<if test="accountNumber!=null">
+				#{accountNumber},
+			</if>
+			<if test="fax!=null">
+				#{fax},
+			</if>
+			<if test="postcode!=null">
+				#{postcode},
+			</if>
+			<if test="artificalPerson!=null">
+				#{artificalPerson},
+			</if>
+			<if test="remark!=null">
+				#{remark},
+			</if>
+		</trim>
+	</insert>
+	
+	<!-- 修改供应商数据 -->
+	<update id="update">
+		update supplier
+		<set>
+			<if test="name!=null and name!=''">
+				sup_name = #{name},
+			</if>
+			<if test="address!=null and address!=''">
+				address = #{address},
+			</if>
+			<if test="contactName!=null and contactName!=''">
+				contact_name  = #{contactName},
+			</if>
+			<if test="contactPhone!=null and contactPhone!=''">
+				contact_phone = #{contactPhone},
+			</if>
+			<if test="openingBank!=null and openingBank!=''">
+				opening_bank = #{openingBank},
+			</if>
+			<if test="accountNumber!=null and accountNumber!=''">
+				account_number = #{accountNumber},
+			</if>
+			<if test="fax!=null and fax!=''">
+				fax = #{fax},
+			</if>
+			<if test="postcode!=null and postcode!=''">
+				postcode = #{postcode},
+			</if>
+			<if test="artificalPerson!=null and artificalPerson!=''">
+				artifical_person = #{artificalPerson},
+			</if>
+			<if test="remark!=null and remark!=''">
+				remark = #{remark}
+			</if>
+			where sup_id = #{id}
+		</set>
+	</update>
+	
+	<!-- 删除供应商数据 -->
+	<delete id="delete" parameterType="int">
+		delete supplier
+		where
+		sup_id = #{id}
+	</delete>
+<!-- 分页实现begin -->
+	<!-- 有分页功能的查询-查询指定页的数据 -->
+	<select id="queryAllPage" resultMap="SupplierMap">
+		select b.* from
+		(select rownum rn, a.* from		
+		(select * from supplier
+		<include refid="queryPageSql" />
+		order by sup_id) a) b
+		where b.rn > (#{pageNum}-1)*#{pageCounts} AND b.rn <![CDATA[<]]>= #{pageNum}*#{pageCounts} 
+	</select>
+		
+	<!-- 有分页功能的查询-查询一共有多少条记录 -->
+	<select id="queryCounts" resultType="int">
+		select count(*) from supplier
+		<include refid="queryPageSql" />
+	</select>
+	
+	<!-- 有查询条件的sql片段 -->
+	<sql id="queryPageSql">
+		<where>
+			<if test="id!=null">
+				and sup_id=#{id}
+			</if>
+			<if test="name!=null and name!=''">
+				and sup_name =#{name}
+			</if>
+		</where>
+	</sql>
+<!-- 分页实现end -->
+
+</mapper>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.depotmanage.selectform.model.FormsMapper">
+	
+	<resultMap type="AllocateForm" id="AllocateFormMap">
+		<id property="taskId" column="task_id"/>
+		<id property="depotOutId" column="depot_out_id"/>
+		<id property="depotInId" column="depot_in_id"/>
+		<id property="shopId" column="shop_id"/>
+		<id property="shopNum" column="shop_num"/>
+	</resultMap>
+	<resultMap type="IoAllocateForm" id="IoAllocateFormMap">
+		<id property="allocateId" column="allocate_id"/>
+		<id property="productId" column="product_id"/>
+		<id property="productCount" column="product_count"/>
+	</resultMap>
+	<resultMap type="IoDepotForm" id="IoDepotFormMap">
+		<id property="iodepotId" column="io_depot_id"/>
+		<id property="ioAllocateId" column="io_allocate_id"/>
+		<id property="taskId" column="task_id"/>
+		<id property="allocateId" column="allocate_id"/>
+		<id property="ioDepotType" column="io_depot_type"/>
+		<id property="depotId" column="depot_id"/>
+		<id property="shopId" column="shop_id"/>
+		<id property="shopAmount" column="shop_amount"/>
+		<result property="ioDepotDate" column="io_depot_date" javaType="java.util.Date"/>
+	</resultMap>
+	
+	<!-- 查询调拨单表 -->
+	<select id="queryAform" resultMap="AllocateFormMap">
+		select id,task_id,depot_out_id,depot_in_id,shop_id,shop_num,state
+		from dd_allocateform
+		order by id
+	</select>
+	<!-- 查询进退货调拨单表 -->
+	<select id="queryIoAform" resultMap="IoAllocateFormMap">
+		select allocate_id,product_id,product_count,type from io_allocate
+		order by allocate_id
+	</select>
+	<!-- 查询进货调拨单表 -->
+	<select id="queryInAform" resultMap="IoAllocateFormMap">
+		select allocate_id,product_id,product_count,type from io_allocate
+		where type = 1
+		order by allocate_id
+	</select>
+	<!-- 查询退货调拨单表 -->
+	<select id="queryOutAform" resultMap="IoAllocateFormMap">
+		select allocate_id,product_id,product_count,type from io_allocate
+		where type = 0
+		order by allocate_id
+	</select>
+	<!-- 查询出入库单表信息 -->
+	<select id="queryIoDform" resultMap="IoDepotFormMap">
+		select io_depot_id,io_allocate_id,io_depot_date,task_id,allocate_id,
+		io_depot_type,depot_id,shop_id,shop_amount
+		from io_depot
+		order by allocate_id
+	</select>
+	
+	<!-- 出入库操作 -->
+	<update id="deleteStock">
+		update shop_stock set
+			amount = amount - #{shopNum},
+			allocatable_amount = allocatable_amount - #{shopNum}
+		where shop_id = #{shopId} and depot_id = #{depotOutId}
+	</update>
+	<update id="addStock">
+		update shop_stock set
+			amount = amount + #{shopNum},
+			allocatable_amount = allocatable_amount + #{shopNum}
+		where shop_id = #{shopId} and depot_id = #{depotInId}
+	</update>
+	<update id="updateState">
+		update dd_allocateform set
+			state = 1
+		where id = #{id}
+	</update>
+	
+	
+	<!-- 购货入库 -->
+	<update id="gouHuo">
+		update shop_stock set
+			amount = amount + #{productCount},
+			allocatable_amount = allocatable_amount + #{productCount}
+		where shop_id = #{productId} and depot_id = 1
+	</update>
+	<!-- 退货出库 -->
+	<update id="tuiHuo">
+		update shop_stock set
+			amount = amount - #{productCount},
+			allocatable_amount = allocatable_amount - #{productCount}
+		where shop_id = #{productId} and depot_id = 1
+	</update>
+	<!-- 修改购货退货表状态 -->
+	<update id="updateType1">
+		update io_allocate set
+			type=2
+		where allocate_id = #{allocateId}
+	</update>
+	<update id="updateType2">
+		update io_allocate set
+			type=3
+		where allocate_id = #{allocateId}
+	</update>
+	
+	<!-- 出入库表的增加begin -->
+		<!-- 调拨单入库 -->
+	<insert id="addIodepot1">
+		insert into io_depot
+			values(iodepot_sequence.nextval,null,sysdate,#{taskId},#{id},
+					0,#{depotInId},#{shopId},#{shopNum})
+	</insert>
+		<!-- 调拨单出库 -->
+	<insert id="addIodepot2">
+		insert into io_depot
+			values(iodepot_sequence.nextval,null,sysdate,#{taskId},#{id},
+					1,#{depotOutId},#{shopId},#{shopNum})
+	</insert>
+		<!-- 购货 -->
+	<insert id="addIodepot3">
+		insert into io_depot
+			values(iodepot_sequence.nextval,#{allocateId},sysdate,null,null,
+					0,1,#{productId},#{productCount})
+	</insert>
+		<!-- 退货 -->
+	<insert id="addIodepot4">
+		insert into io_depot
+			values(iodepot_sequence.nextval,#{allocateId},sysdate,null,null,
+					1,1,#{productId},#{productCount})
+	</insert>
+	
+	<!-- 出入库表的增加end -->
+	
+	
+	
+</mapper>

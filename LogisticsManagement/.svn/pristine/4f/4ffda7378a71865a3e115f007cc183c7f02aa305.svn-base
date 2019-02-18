@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.depotmanage.shop.model.ShopStockMapper">
+	<resultMap type="ShopStock" id="ShopStockMap">
+		<id property="shopId" column="shop_id"/>
+		<id property="depotId" column="depot_id"/>
+		<id property="safeAmount" column="safe_amount"/>
+		<id property="lackAmount" column="lack_amount"/>
+		<id property="arrangedAmount" column="arranged_amount"/>
+		<id property="returndAmount" column="returnd_amount"/>
+		<id property="allocatableAmount" column="allocatable_amount"/>
+		<id property="allocatedAmount" column="allocatedAmount"/>
+		<id property="shopStockId" column="shop_stock_id"/>
+		<result property="shopName" column="shop_name"/>
+		<result property="lastarrangedDate" column="lastarranged_date" javaType="java.util.Date"/>
+	</resultMap>
+	<resultMap type="Product" id="ProductMap">
+		<id property="id" column="shop_id" />
+		<id property="originalPrice" column="original_price" />
+		<id property="discount" column="discount" />
+		<id property="cost" column="cost" />
+		<id property="price" column="shop_price" />
+		<id property="returnable" column="returnable" />
+		<id property="changeable" column="changeable" />
+		<result property="name" column="shop_name" />
+		<result property="unit" column="unit" />
+		<result property="type" column="product_type" />
+		<result property="producerName" column="producername" />
+		<result property="manufactureDate" column="manufacture_date"
+			javaType="java.util.Date" />
+		<result property="productLife" column="product_life" />
+		<association property="pco" select="queryPco" column="pco_id" ></association>
+		<association property="pct" select="queryPct" column="pct_id" ></association>
+		<association property="sup" select="querySup" column="sup_id" ></association>
+	</resultMap>
+	
+	<select id="queryShopStock" resultMap="ShopStockMap" >
+		select * from shop_stock
+		<where>
+			<if test="shopId!=null">
+				and shop_id = #{shopId}
+			</if>
+			<if test="depotId!=null">
+				and depot_id = #{depotId}
+			</if>
+			<if test="lastarrangedDate!=null">
+				and lastarranged_date = #{lastarrangedDate}
+			</if>
+		</where>
+	</select>
+	<select id="queryByShopId" resultType="int">
+		select sum(amount) sunamount from shop_stock
+		where shop_id = #{shopId}
+	</select>
+	<select id="queryShopStockId" resultMap="ShopStockMap">
+		select * from shop_stock
+		where shop_id = #{shopId} and depot_id = #{depotId}
+	</select>
+	<update id="updateShopStock">
+		update shop_stock set
+			shop_id=#{shopId},
+			shop_name=#{shopName},
+			depot_id = #{depotId},
+			remark=#{remark},
+			amount=#{amount},
+			safe_amount=#{safeAmount},
+			lack_amount=#{lackAmount},
+			arranged_amount=#{arrangedAmount},
+			lastarranged_date=#{lastarrangedDate},
+			returnd_amount=#{returndAmount},
+			allocatable_amount=#{allocatableAmount},
+			allocated_amount=#{allocatedAmount}
+		where shop_stock_id=#{shopStockId}
+	</update>
+	<insert id="addShopStock">
+		insert into shop_stock (shop_id,shop_name,depot_id,remark,amount,safe_amount,lack_amount,arranged_amount,lastarranged_date,returnd_amount,allocatable_amount,allocated_amount,shop_stock_id)
+		values(#{shopId},#{shopName,jdbcType=VARCHAR},#{depotId},#{remark,jdbcType=VARCHAR},#{amount,jdbcType=INTEGER},#{safeAmount,jdbcType=INTEGER},#{lackAmount,jdbcType=INTEGER},#{arrangedAmount,jdbcType=INTEGER},#{lastarrangedDate,jdbcType=DATE},#{returndAmount,jdbcType=INTEGER},#{allocatableAmount,jdbcType=INTEGER},#{allocatedAmount,jdbcType=INTEGER},shopstock_sequence.nextval)
+	</insert>
+	
+	<select id="queryAllShop" resultMap="ProductMap">
+		select * from product
+	</select>
+	
+</mapper>

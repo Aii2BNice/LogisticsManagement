@@ -1,0 +1,87 @@
+package com.neusoft.depotmanage.shop.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import com.neusoft.depotmanage.depot.model.Depot;
+import com.neusoft.depotmanage.depot.service.DepotService;
+import com.neusoft.depotmanage.shop.model.ShopStock;
+import com.neusoft.depotmanage.shop.service.ShopStockService;
+import com.neusoft.pszxgl.product.model.Product;
+
+@Controller
+public class ShopStockController {
+
+	@Autowired
+	private ShopStockService service;
+	@Autowired
+	private DepotService service1;
+	
+	@RequestMapping("queryShopStock")
+	public String queryShopStock(HttpServletRequest req,ShopStock s){
+		String str = "depotmanage/shopstock/queryshopstock.jsp";
+		List<ShopStock> queryShopStock = service.queryShopStock(s);
+		System.out.println("--list=" + queryShopStock);
+		req.setAttribute("queryShopStock", queryShopStock);
+		req.setAttribute("shopId", s.getShopId());
+		return str;
+	}
+	
+	@RequestMapping(value="queryShopStockId",params="act")
+	public String queryShopStockId(HttpServletRequest req,Integer shopId,Integer depotId){
+		String str = "depotmanage/shopstock/updateshopstock.jsp";
+		ShopStock s = service.queryShopStockId(shopId,depotId);
+		req.setAttribute("s", s);
+		return str;
+	}
+	
+	@RequestMapping(value="updateShopStock")
+	public String updateShopStockId(HttpServletRequest req,ShopStock s){
+		String str = "depotmanage/shopstock/updateshopstock.jsp";
+		int i = -1;
+		i= service.updateShopStock(s);
+		if(i>0){
+			str="depotmanage/shopstock/queryshopstock.jsp";
+			req.setAttribute("s", s);
+			req.setAttribute("msg", "修改成功");
+		}else{
+			req.setAttribute("msg", "修改失败");
+		}
+		
+		return str;
+	}
+	
+	@RequestMapping(value="addShopStock")
+	public String addShopStockId(HttpServletRequest req,ShopStock s,Product pro){
+		String str = "depotmanage/shopstock/addshopstock.jsp";
+		List<Product> list = service.queryAllShop(pro);
+		System.out.println("list="+list);
+		req.getSession().setAttribute("list", list);
+		int i = -1;
+		i= service.addShopStock(s);
+		
+		if(i>0){
+			str="depotmanage/shopstock/queryshopstock.jsp";
+			req.setAttribute("s", s);
+			req.setAttribute("msg", "增加商品成功");
+		}else{
+			req.setAttribute("msg", "增加商品失败"); 
+		}
+		
+		return str;
+	}
+	
+	@RequestMapping(value="jump")
+	public String jump(HttpServletRequest req,Product pro,Depot d){
+		String str = "depotmanage/shopstock/addshopstock.jsp";
+		List<Product> qwer = service.queryAllShop(pro);
+		List<Depot> rewq = service1.queryAll(d);
+		req.getSession().setAttribute("qwer", qwer);
+		req.getSession().setAttribute("rewq", rewq);
+		return str;
+	}
+	
+}

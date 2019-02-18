@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	
+	
+	<!-- 输出生成的sql语句 -->
+	<settings>
+		<setting name="logImpl" value="STDOUT_LOGGING"/>
+	</settings>
+	
+	<!-- 设置类的别名，方便mapper文件中使用 -->
+	<typeAliases>
+	<!-- 通过package标签引入包，表示包里的类都可以通过别名引用 -->
+		<package name="com.neusoft"/>
+	</typeAliases>
+	
+	
+	
+</configuration>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.pszxgl.product.model.ProductMapper">
+<!-- 配置 begin-->
+	<!-- 商品配置 -->
+	<resultMap type="Product" id="ProductMap">
+		<id property="id" column="shop_id" />
+		<id property="originalPrice" column="original_price" />
+		<id property="discount" column="discount" />
+		<id property="cost" column="cost" />
+		<id property="price" column="shop_price" />
+		<id property="returnable" column="returnable" />
+		<id property="changeable" column="changeable" />
+		<result property="name" column="shop_name" />
+		<result property="unit" column="unit" />
+		<result property="type" column="product_type" />
+		<result property="producerName" column="producername" />
+		<result property="manufactureDate" column="manufacture_date"
+			javaType="java.util.Date" />
+		<result property="productLife" column="product_life" />
+		<association property="pco" select="queryPco" column="pco_id" ></association>
+		<association property="pct" select="queryPct" column="pct_id" ></association>
+		<association property="sup" select="querySup" column="sup_id" ></association>
+	</resultMap>
+	
+	<!-- 供应商配置 -->
+	<resultMap type="Supplier" id="SupplierMap">
+		<id property="id" column="sup_id" />
+		<result property="name" column="sup_name" />
+	</resultMap>
+	
+	<!-- 配置查询供应商全部数据 -->
+	<select id="querySup" resultMap="SupplierMap">
+		select sup_id,sup_name from SUPPLIER
+		 	where sup_id = #{id} ORDER BY sup_id
+	</select>
+	
+	<!-- 商品二级分类配置 -->
+	<resultMap type="ProductClassTwo" id="ProductClassTwoMap">
+		<id property="id" column="pct_id" />
+		<result property="name" column="pct_name" />
+	</resultMap>
+	
+	<!-- 配置查询商品二级分类全部数据 -->
+	<select id="queryPct" resultMap="ProductClassTwoMap">
+		select pct_id,pct_name from PRODUCT_CLASS_TWO
+		 	where pct_id = #{id} ORDER BY pct_id
+	</select>
+	
+	<!-- 商品一级分类配置 -->
+	<resultMap type="ProductClassOne" id="ProductClassOneMap">
+		<id property="id" column="pco_id" />
+		<result property="name" column="pco_name" />
+	</resultMap>
+	
+	<!-- 配置查询商品一级分类全部数据 -->
+	<select id="queryPco" resultMap="ProductClassOneMap">
+		select pco_id,pco_name from PRODUCT_CLASS_ONE
+		 	where pco_id = #{id} ORDER BY pco_id
+	</select>
+<!-- 配置 end-->	
+	
+	
+	<!-- 查询商品全部数据 -->
+	<select id="queryAll" resultMap="ProductMap">
+		SELECT
+			shop_id,shop_name,original_price,unit,discount,shop_price,
+			COST,product_type,pct_id,pct_name,pco_id,pco_name,producername,
+			manufacture_date,product_life,sup_id,sup_name,returnable,changeable
+		FROM product,product_class_one,product_class_two,supplier
+		where sup_id=supplier_id AND p_pct_id=pct_id AND belong_id = pco_id
+			<include refid="queryprodd" />
+		ORDER BY shop_id
+	</select>
+	
+	<!-- 客服查询商品全部数据 -->
+	<select id="queryAllProduct" resultMap="ProductMap">
+		SELECT
+			shop_id,shop_name,original_price,unit,discount,shop_price,
+			COST,product_type,pct_id,pct_name,pco_id,pco_name,producername,
+			manufacture_date,product_life,sup_id,sup_name,returnable,changeable
+		FROM product,product_class_one,product_class_two,supplier
+		where sup_id=supplier_id AND p_pct_id=pct_id AND belong_id = pco_id
+			<include refid="queryPro" />
+		ORDER BY shop_id
+	</select>
+	
+	<sql id="queryprodd">
+		<if test="name!=null and name!=''">
+			and shop_name like '%'||#{name}||'%'
+		</if>
+		<if test="priceUpper!=null and priceLower!=null">
+			and shop_price between #{priceUpper} and #{priceLower}
+		</if>
+         <if test="pco!=null">
+			<if test="pco.id!=null">
+				and pco_id = #{pco.id}
+			</if>
+		</if>
+		<if test="pct!=null">
+			<if test="pct.id!=null and pct.id!=''">
+			and pct_id=#{pct.id}
+		</if>
+		</if>
+		<if test="sup!=null">
+			<if test="sup.id!=null and sup.id!=''">
+			and sup_id=#{sup.id}
+		</if>
+		</if>
+		
+	</sql>
+	
+	<sql id="queryPro">
+		<if test="name!=null and name!=''">
+			and shop_name like '%'||#{name}||'%'
+		</if>
+		<if test="priceUpper!=null and priceLower!=null">
+			and shop_price between #{priceUpper} and #{priceLower}
+		</if>
+		<if test="pct.id!=null and pct.id!=''">
+			and pct_id=#{pct.id}
+		</if>
+	</sql>
+	
+	<!-- 通过Id查询商品一级分类数据 -->
+	<select id="queryById" parameterType="int" resultMap="ProductMap">
+		SELECT
+			shop_id,shop_name,original_price,unit,discount,shop_price,
+			COST,product_type,pct_id,pct_name,pco_id,pco_name,producername,
+			manufacture_date,product_life,sup_id,sup_name,returnable,changeable
+		FROM product,product_class_one,product_class_two,supplier
+		WHERE sup_id=supplier_id AND p_pct_id=pct_id AND belong_id = pco_id AND shop_id=#{id}
+	</select>
+	
+	
+	<!-- 增加商品数据 -->
+	<insert id="add" >
+		insert into PRODUCT
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id!=null">
+				shop_id,
+			</if>
+			<if test="name!=null">
+				shop_name,
+			</if>
+			<if test="originalPrice!=null">
+				original_price,
+			</if>
+			<if test="discount!=null">
+				discount,
+			</if>
+			<if test="cost!=null">
+				cost,
+			</if>
+			<if test="type!=null">
+				product_type,
+			</if>
+			<if test="sup.id!=null">
+				supplier_id,
+			</if>
+			<if test="pct.id!=null">
+				p_pct_id,
+			</if>
+			<if test="unit!=null">
+				unit,
+			</if>
+			<if test="producerName!=null">
+				producername,
+			</if>
+			<if test="manufactureDate!=null">
+				manufacture_date,
+			</if>
+			<if test="productLife!=null">
+				product_life,
+			</if>
+			<if test="returnable!=null">
+				returnable,
+			</if>
+			<if test="changeable!=null">
+				changeable,
+			</if>
+			<if test="price!=null">
+				shop_price,
+			</if>
+		</trim>
+		<trim prefix="values(" suffix=")" suffixOverrides=",">
+			<if test="id!=null">
+				#{id},
+			</if>
+			<if test="name!=null">
+				#{name},
+			</if>
+			<if test="originalPrice!=null">
+				#{originalPrice},
+			</if>
+			<if test="discount!=null">
+				#{discount},
+			</if>
+			<if test="cost!=null">
+				#{cost},
+			</if>
+			<if test="type!=null">
+				#{type},
+			</if>
+			<if test="sup.id!=null">
+				#{sup.id},
+			</if>
+			<if test="pct.id!=null">
+				#{pct.id},
+			</if>
+			<if test="unit!=null">
+				#{unit},
+			</if>
+			<if test="producerName!=null">
+				#{producerName},
+			</if>
+			<if test="manufactureDate!=null">
+				#{manufactureDate},
+			</if>
+			<if test="productLife!=null">
+				#{productLife},
+			</if>
+			<if test="returnable!=null">
+				#{returnable},
+			</if>
+			<if test="changeable!=null">
+				#{changeable},
+			</if>
+			<if test="price!=null">
+				#{price},
+			</if>
+		</trim>
+	</insert>
+	
+	
+	<!-- 修改商品数据 -->
+	<update id="update">
+		update PRODUCT
+		<set>
+			<if test="name!=null and name!=''">
+				shop_name = #{name},
+			</if>
+			<if test="originalPrice!=null and originalPrice!=''">
+				original_price = #{originalPrice},
+			</if>
+			<if test="discount!=null and discount!=''">
+				discount = #{discount},
+			</if>
+			<if test="cost!=null and cost!=''">
+				cost = #{cost},
+			</if>
+			<if test="type!=null and type!=''">
+				product_type = #{type},
+			</if>
+			<if test="sup.id!=null and sup.id!=''">
+				supplier_id = #{sup.id},
+			</if>
+			<if test="pct.id!=null and pct.id!=''">
+				p_pct_id = #{pct.id},
+			</if>
+			<if test="unit!=null and unit!=''">
+				unit = #{unit},
+			</if>
+			<if test="producerName!=null and producerName!=''">
+				producername = #{producerName},
+			</if>
+			<if test="manufactureDate!=null">
+				manufacture_date = #{manufactureDate},
+			</if>
+			<if test="productLife!=null and productLife!=''">
+				product_life = #{productLife},
+			</if>
+			<if test="returnable!=null and returnable!=''">
+				returnable = #{returnable},
+			</if>
+			<if test="changeable!=null and changeable!=''">
+				changeable = #{changeable},
+			</if>
+			<if test="price!=null and price!=''">
+				shop_price = #{price}
+			</if>
+			where shop_id = #{id}
+		</set>
+	</update>
+	
+	<!-- 删除商品数据 -->
+	<delete id="delete" parameterType="int">
+		delete PRODUCT
+		where shop_id = #{id}
+	</delete>
+
+<!-- 分页实现begin -->
+	<!-- 有分页功能的查询-查询指定页的数据 -->
+	<select id="queryAllPage" resultMap="ProductMap">
+		select b.* from
+		(select rownum rn, a.* from		
+		(SELECT
+			shop_id,shop_name,original_price,unit,discount,shop_price,
+			COST,product_type,pct_id,pct_name,pco_id,pco_name,producername,
+			manufacture_date,product_life,sup_id,sup_name,returnable,changeable
+		FROM product,product_class_one,product_class_two,supplier
+		where sup_id=supplier_id AND p_pct_id=pct_id AND belong_id = pco_id
+		<include refid="queryPageSql" />
+		order by pco_id) a) b
+		where b.rn > (#{pageNum}-1)*#{pageCounts} AND b.rn <![CDATA[<]]>= #{pageNum}*#{pageCounts} 
+	</select>
+		
+	<!-- 有分页功能的查询-查询一共有多少条记录 -->
+	<select id="queryCounts" resultType="int">
+		select count(*) FROM product,product_class_one,product_class_two,supplier
+		where sup_id=supplier_id AND p_pct_id=pct_id AND belong_id = pco_id
+		<include refid="queryPageSql" />
+	</select>
+	
+	<!-- 有查询条件的sql片段 -->
+	<sql id="queryPageSql">
+		<if test="name!=null and name!=''">
+			and shop_name like '%'||#{name}||'%'
+		</if>
+		<if test="priceUpper!=null and priceLower!=null">
+			and shop_price between #{priceUpper} and #{priceLower}
+		</if>
+         <if test="pco!=null">
+			<if test="pco.id!=null">
+				and pco_id = #{pco.id}
+			</if>
+		</if>
+		<if test="pct!=null">
+			<if test="pct.id!=null and pct.id!=''">
+			and pct_id=#{pct.id}
+		</if>
+		</if>
+		<if test="sup!=null">
+			<if test="sup.id!=null and sup.id!=''">
+			and sup_id=#{sup.id}
+		</if>
+		</if>
+		
+	</sql>
+<!-- 分页实现end -->
+
+
+
+</mapper>

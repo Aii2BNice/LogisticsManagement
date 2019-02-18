@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.system.power.model.PowerMapper" >
+	
+	<resultMap type="power" id="powerMap">
+		<id property="powerid" column="power_id"/>
+		<id property="powername" column="power_name"/>
+		<result property="powerid" column="power_id"/>
+		<result property="powername" column="power_name"/>
+	</resultMap>
+	
+	<!-- 查询所有权限 -->
+	<select id="queryAll" parameterType="power" resultMap="powerMap">
+		select * from power
+		<where>
+			<if test="powerid!=null and powerid!=''">
+				and power_id =#{powerid}
+			</if>
+			<if test="powername!=null and powername!=''">
+				and power_name like '%'||#{powername}||'%'
+			</if>
+		</where>
+		order by power_id
+	</select>
+	
+	<!-- 增加权限  -->
+	<insert id="insert" parameterType="power">
+		Insert Into power 
+		Values(#{powername},power_seq.nextval)
+	</insert>
+	
+	<!-- 修改权限  -->
+	<update id="update">
+		update power 
+		set power_name=#{powername}
+		where power_id=#{powerid}
+	</update>
+	
+	<!-- 删除权限  -->
+	<delete id="delete">
+		delete from power where power_id = #{powerid}
+	</delete>
+	
+</mapper>

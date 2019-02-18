@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+	
+<mapper namespace="com.neusoft.finance.queryallinvoice.model.InvoiceMapper">
+	<resultMap type="Invoice" id="invoiceMap">
+	<id property="invoiceStateId" column="INVOICE_STATE_ID"  jdbcType="INTEGER"/>
+	<id property="substationId" column="SUBSTATION_ID" jdbcType="INTEGER"/>
+	<id property="taskId" column="TASK_ID" jdbcType="INTEGER"/>
+	<id property="oringalInvoiceId" column="ORINGAL_INVOICE_ID" jdbcType="INTEGER"/>
+	<id property="deliverId" column="DELIVER_ID" jdbcType="INTEGER"/>
+	<result property="registerDate" column="REGISTER_DATE" javaType="java.util.Date"/>
+	<result property="substationDate" column="SUBSTATION_DATE" javaType="java.util.Date"/>
+	<result property="customerDate" column="CUSTOMER_DATE" javaType="java.util.Date"/>
+	<result property="lostDate" column="LOST_DATE" javaType="java.util.Date"/>
+	<result property="loseName" column="LOSE_NAME" jdbcType="VARCHAR"/>
+	</resultMap>
+	<select id="queryAll" resultMap="invoiceMap">
+	select *
+	from INVOICE
+	<where>
+	1=1
+	<if test="id!=null and id!=''">
+	and ID=#{id}
+	</if>
+	<if test="price!=null and price!=''">
+	and PRICE=#{price}
+	</if>
+	</where>
+	ORDER BY ID
+	</select>
+	<!-- 分页查询 begin -->
+		<!-- 有分页功能的查询-查询指定页的数据  -->
+		<select id="queryAllPage" resultMap="invoiceMap">
+		select b.* from
+		(select rownum rn,a.* from
+		(select * from INVOICE
+		<include refid="queryPageSql" />
+		order by id) a) b
+		where b.rn > (#{pageNum}-1)*#{pageCounts} AND b.rn <![CDATA[<]]>= #{pageNum}*#{pageCounts}
+		
+		</select>
+		<!-- 有分页功能的查询-查询一共有多少条记录 -->
+	    <select id="queryCounts" resultType="int">
+		select count(*) from INVOICE
+		<include refid="queryPageSql" />
+		</select>
+		<!-- 有查询条件的sql片段 -->
+	    <sql id="queryPageSql">
+		<where>
+	       1=1
+	    <if test="id!=null and id!=''">
+	       and ID=#{id}
+	    </if>
+	    <if test="price!=null and price!=''">
+	       and PRICE=#{price}
+	    </if>
+		</where>
+		</sql>
+	<!-- 分页查询 end -->
+</mapper>

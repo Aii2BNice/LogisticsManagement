@@ -1,0 +1,162 @@
+package com.neusoft.pszxgl.productclasstwo.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import com.neusoft.pszxgl.productclassone.model.ProductClassOne;
+import com.neusoft.pszxgl.productclasstwo.model.ProductClassTwo;
+import com.neusoft.pszxgl.productclasstwo.service.ProductClassTwoService;
+
+/**
+ * 商品二级分类管理Controller
+ */
+@Controller
+public class ProductClassTwoController {
+	
+	@Autowired
+	private ProductClassTwoService service;
+	
+	/**
+	 * 查询-有分页功能
+	 * @param req
+	 * @param u
+	 * @return
+	 */
+	@RequestMapping(value="/propctpage", params="act=query")
+	public String querypage(HttpServletRequest req, ProductClassTwo pct){
+		String str = "/pszxgl/productclasstwo/productclasstwoquery.jsp";
+		
+		//获取一共有多少条记录
+		int counts = service.queryCounts(pct);
+		
+		//进行分页相关数据的计算-begin
+		int pageNum = pct.getPageNum();//当前第几页
+		int pageCounts = pct.getPageCounts();//每页多少条
+		int pages = counts/pageCounts + (counts%pageCounts>0?1:0);//一共多少页
+		if(pageNum<1){
+			pageNum = 1;
+		}
+		if(pageNum>pages){
+			pageNum = pages;
+		}
+		pct.setPageNum(pageNum);
+		pct.setPageCounts(pageCounts);
+		pct.setPages(pages);
+		pct.setCounts(counts);
+		//进行分页相关数据的计算-end
+		
+		//获取指定页的数据
+		List<ProductClassTwo> list = service.queryAllPage(pct);
+		System.out.println("xxxxxxxxxxxxxxxxxxxx"+list);
+		
+		req.getSession().setAttribute("pctlist", list);
+
+		return str;
+	}
+	
+	
+	
+	//商品分类级联显示-----begin----------------------------------------------
+	@RequestMapping(value = "selectPct", method = {RequestMethod.POST})
+	@ResponseBody
+	public List<ProductClassTwo> jumpPage(HttpServletRequest request){
+		Integer pcoid=Integer.parseInt(request.getParameter("pcoid"));
+		System.out.println("xxxxxxxxxxxxxxxxxxxxxxxx"+pcoid);
+		ProductClassTwo two = new ProductClassTwo(null, null, new ProductClassOne(pcoid,null));
+		List<ProductClassTwo> list = service.queryAll(two);
+		return list;
+	}
+	//商品分类级联显示-----end-------------------------------------------------
+	
+	/**
+	 * 查询全部数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/queryPCT",params="act=query")
+	public String query(HttpServletRequest request,ProductClassTwo pct){
+		String str = "/pszxgl/productclasstwo/productclasstwoquery.jsp";
+		List<ProductClassTwo> list = service.queryAll(pct);
+		request.getSession().setAttribute("pctlist", list);
+		return str;
+	}
+	
+	
+	/**
+	 * 通过ID查询一条数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/toUpdatePCT",params="act=toUpdate")
+	public String toUpdate(HttpServletRequest request,ProductClassTwo pct){
+		String str = "/pszxgl/productclasstwo/productclasstwoupdate.jsp";
+		ProductClassTwo proct = service.queryById(pct.getId());
+		request.getSession().setAttribute("proct", proct);
+		return str;
+	}
+	
+	
+	/**
+	 * 增加一条数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/addPCT",params="act=add")
+	public String add(HttpServletRequest request,ProductClassTwo pct){
+		String str = "/pszxgl/productclasstwo/productclasstwoquery.jsp";
+		int i = service.add(pct);
+		if(i>0){
+			request.setAttribute("msg", "增加成功！请重新查询");
+		}else {
+			request.setAttribute("msg", "增加失败！");
+		}
+		return str;
+	}
+	
+	/**
+	 * 修改一条数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/updatePCT",params="act=update")
+	public String update(HttpServletRequest request,ProductClassTwo pct){
+		String str = "/pszxgl/productclasstwo/productclasstwoquery.jsp";
+		int i = service.update(pct);
+		if(i>0){
+			request.setAttribute("msg", "修改成功！请重新查询");
+		}else {
+			request.setAttribute("msg", "修改失败！");
+		}
+		return str;
+	}
+	
+	
+	/**
+	 * 通过ID删除一条数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/deletePCT",params="act=delete")
+	public String delete(HttpServletRequest request,ProductClassTwo pct){
+		String str = "/pszxgl/productclasstwo/productclasstwoquery.jsp";
+		int i = service.delete(pct.getId());
+		if(i>0){
+			request.setAttribute("msg", "删除成功！请重新查询");
+		}else {
+			request.setAttribute("msg", "删除失败！");
+		}
+		return str;
+	}
+
+}

@@ -1,0 +1,39 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+#main{
+	width: 100%;
+	height: 700px;
+	border: 1px solid black;
+	background-image: url(../img/bgimg.gif);
+}
+#header{
+	width: 100%;
+	height: 170px;
+}
+#headerimg{
+	width: 100px;
+	height: 50px;
+	margin: 40px auto;
+}
+#headerimg #img{
+	border-radius: 50px;
+}
+#username{
+	width: 200px;
+	height: 30px;
+	text-align: center;
+	line-height: 30px;
+	margin: 70px auto;
+}
+#username a{
+	text-decoration: none;
+	color: gray;
+}#main{
+	width: 988px;
+	border: 1px solid black;
+	float: left;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}

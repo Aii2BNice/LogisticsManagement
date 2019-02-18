@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.pszxgl.ioallocate.model.IoAllocateMapper">
+	<resultMap type="IoAllocate" id="IoAllocateMap">
+		<id property="id" column="allocate_id" />
+		<id property="total" column="total" />
+		<id property="type" column="type" />
+		<id property="shopid" column="product_id" />
+		<id property="count" column="product_count" />
+		<result property="allocateDate" column="allocatedate"
+			javaType="java.util.Date" />
+		<association property="orderform" select="queryOrder" column="order_id"></association>
+		<association property="pro" select="queryProduct" column="shop_id"></association>
+		<association property="pcoo" select="queryPco" column="pco_id" ></association>
+		<association property="pctt" select="queryPct" column="pct_id" ></association>
+		<association property="sup" select="querySup" column="sup_id" ></association>
+	</resultMap>
+
+<!-- 配置begin -->	
+	<!-- 订单配置 -->
+	<resultMap type="OrderForm" id="OrderFormMap">
+		<id property="orderId" column="order_id"/>
+		<id property="orderStateId" column="order_state_id"/>
+		<id property="orderTypeId" column="order_type_id"/>
+		<id property="shopNum" column="shop_num"/>
+	</resultMap>
+	<!-- 配置查询商品全部数据 -->
+	<select id="queryOrder" resultMap="OrderFormMap">
+		select order_id,order_state_id,shop_num from ORDER_FORM
+		where order_id = #{orderId}
+	</select>
+	
+	
+	<!-- 商品配置 -->
+	<resultMap type="Product" id="ProductMap">
+		<id property="id" column="shop_id"/>
+		<id property="cost" column="cost"/>
+		<result property="name" column="shop_name" />
+	</resultMap>
+	<!-- 配置查询商品全部数据 -->
+	<select id="queryProduct" resultMap="ProductMap">
+		select shop_id,shop_name,cost from PRODUCT
+		where shop_id = #{id} 
+	</select>
+	
+	
+	<!-- 商品二级分类配置 -->
+	<resultMap type="ProductClassTwo" id="ProductClassTwoMap">
+		<id property="id" column="pct_id" />
+		<result property="name" column="pct_name" />
+	</resultMap>
+	
+	<!-- 配置查询商品二级分类全部数据 -->
+	<select id="queryPct" resultMap="ProductClassTwoMap">
+		select pct_id,pct_name from PRODUCT_CLASS_TWO
+		 	where pct_id = #{id} ORDER BY pct_id
+	</select>
+	
+	<!-- 商品一级分类配置 -->
+	<resultMap type="ProductClassOne" id="ProductClassOneMap">
+		<id property="id" column="pco_id" />
+		<result property="name" column="pco_name" />
+	</resultMap>
+	
+	<!-- 配置查询商品一级分类全部数据 -->
+	<select id="queryPco" resultMap="ProductClassOneMap">
+		select pco_id,pco_name from PRODUCT_CLASS_ONE
+		 	where pco_id = #{id} ORDER BY pco_id
+	</select>
+	
+	
+	<!-- 供应商配置 -->
+	<resultMap type="Supplier" id="SupplierMap">
+		<id property="id" column="sup_id" />
+		<result property="name" column="sup_name" />
+	</resultMap>
+	<!-- 配置查询供应商全部数据 -->
+	<select id="querySup" resultMap="SupplierMap">
+		select sup_id,sup_name from SUPPLIER
+		where sup_id = #{id} 
+	</select>
+<!-- 配置end -->		
+	
+	
+	<!-- 查询进货待处理调度单 -->
+	<select id="pendingQuery" resultMap="IoAllocateMap">
+	SELECT supplier.sup_id,supplier.sup_name,order_Form.order_id,order_Form.order_type_id,
+       product.shop_id,product.shop_name,product.cost,
+       order_Form.shop_num,
+       (product.cost*order_Form.shop_num),product_class_two.pct_id,
+       product_class_two.pct_name,product_class_one.pco_id,product_class_one.pco_name
+       
+    FROM supplier,product,product_class_two,product_class_one,order_Form
+    
+    WHERE order_Form.order_state_id = 1 AND order_Form.shop_id = product.shop_id 
+      AND product.p_pct_id=product_class_two.pct_id 
+      AND product_class_two.belong_id=product_class_one.pco_id  
+      AND product.supplier_id = supplier.sup_id  and order_Form.order_id NOT IN (SELECT allocate_id FROM io_allocate)
+      <if test="orderform!=null">
+      	<if test="orderform.orderId!=null">
+      	and order_Form.order_id=#{orderform.orderId}
+      	</if>
+      </if>
+	</select>
+	
+	<!-- 通过Id查询进货单数据 -->
+	<select id="pendingQueryById" resultMap="IoAllocateMap">
+	SELECT supplier.sup_id,supplier.sup_name,order_Form.order_id,order_Form.order_type_id,
+       product.shop_id,product.shop_name,product.cost,
+       order_Form.shop_num,
+       (product.cost*order_Form.shop_num),product_class_two.pct_id,
+       product_class_two.pct_name,product_class_one.pco_id,product_class_one.pco_name
+       
+		FROM supplier,product,product_class_two,product_class_one,order_Form
+		
+		WHERE order_Form.order_state_id = 1 AND order_Form.shop_id = product.shop_id 
+      AND product.p_pct_id=product_class_two.pct_id 
+      AND product_class_two.belong_id=product_class_one.pco_id  
+      AND product.supplier_id = supplier.sup_id 
+      and order_Form.order_id=#{orderform.orderId} 
+	</select>
+	
+	
+	<!-- 查询已处理进单全部数据 -->
+	<select id="queryAllIn" resultMap="IoAllocateMap">
+		SELECT
+      allocate_id,shop_id,shop_name,pct_id,pct_name,pco_id,pco_name,
+      product_price,product_count,total,type,
+      sup_id,sup_name,allocatedate
+    FROM io_allocate,product,supplier,product_class_two,product_class_one
+    WHERE product.shop_id=io_allocate.product_id AND product.p_pct_id = product_class_two.pct_id
+          AND product_class_two.belong_id = product_class_one.pco_id 
+          AND supplier.sup_id =product.supplier_id and io_allocate.type in(1,2)
+		<if test="id!=null">
+			allocate_id = #{id}
+		</if>
+	</select>
+	
+		<select id="queryAllOut" resultMap="IoAllocateMap">
+		SELECT
+      allocate_id,shop_id,shop_name,pct_id,pct_name,pco_id,pco_name,
+      product_price,product_count,total,type,
+      sup_id,sup_name,allocatedate
+    FROM io_allocate,product,supplier,product_class_two,product_class_one
+    WHERE product.shop_id=io_allocate.product_id AND product.p_pct_id = product_class_two.pct_id
+          AND product_class_two.belong_id = product_class_one.pco_id 
+          AND supplier.sup_id =product.supplier_id and io_allocate.type in(0,3)
+		<if test="id!=null">
+			allocate_id = #{id}
+		</if>
+	</select>
+	
+	
+	<!-- 通过Id查询进/退单数据 -->
+	<select id="queryById" parameterType="int" resultMap="IoAllocateMap">
+		SELECT
+      allocate_id,shop_id,shop_name,pct_name,pco_name,
+      product_price,product_count,total,type,
+      sup_id,sup_name,allocatedate
+    FROM io_allocate,product,supplier,product_class_two,product_class_one
+    WHERE product.shop_id=io_allocate.product_id AND product.p_pct_id = product_class_two.pct_id
+          AND product_class_two.belong_id = product_class_one.pco_id 
+          AND supplier.sup_id =product.supplier_id 
+		  and allocate_id = #{id}
+	</select>
+	
+	
+	
+	<!-- 查询退货货待处理调度单 -->
+	<select id="returnPendingQuery" resultMap="IoAllocateMap">
+	SELECT supplier.sup_id,supplier.sup_name,order_Form.order_id,order_Form.order_type_id,
+       product.shop_id,product.shop_name,product.cost,
+       order_Form.shop_num,
+       (product.cost*order_Form.shop_num),product_class_two.pct_id,
+       product_class_two.pct_name,product_class_one.pco_id,product_class_one.pco_name
+       
+    FROM supplier,product,product_class_two,product_class_one,order_Form
+    
+    WHERE order_Form.order_type_id = 4 AND order_Form.shop_id = product.shop_id 
+      AND product.p_pct_id=product_class_two.pct_id 
+      AND product_class_two.belong_id=product_class_one.pco_id  
+      AND product.supplier_id = supplier.sup_id  and order_Form.order_id NOT IN (SELECT allocate_id FROM io_allocate)
+      <if test="orderform!=null">
+      	<if test="orderform.orderId!=null">
+      	and order_Form.order_id=#{orderform.orderId}
+      	</if>
+      </if>
+	</select>
+	
+	
+	<!-- 通过Id查询退货单数据 -->
+	<select id="returnPendingQueryById" resultMap="IoAllocateMap">
+	SELECT supplier.sup_id,supplier.sup_name,order_Form.order_id,order_Form.order_type_id,
+       product.shop_id,product.shop_name,product.cost,
+       order_Form.shop_num,
+       (product.cost*order_Form.shop_num),product_class_two.pct_id,
+       product_class_two.pct_name,product_class_one.pco_id,product_class_one.pco_name
+       
+		FROM supplier,product,product_class_two,product_class_one,order_Form
+		
+		WHERE order_Form.order_type_id = 4 AND order_Form.shop_id = product.shop_id 
+      AND product.p_pct_id=product_class_two.pct_id 
+      AND product_class_two.belong_id=product_class_one.pco_id  
+      AND product.supplier_id = supplier.sup_id 
+      and order_Form.order_id=#{orderform.orderId} 
+	</select>
+	
+	<!-- 增加进/退单数据 -->
+	<insert id="add" >
+		insert into io_allocate
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id!=null">
+				allocate_id,
+			</if>
+			<if test="sup.id!=null">
+				supplier_id,
+			</if>
+			<if test="pro.id!=null">
+				product_id,
+			</if>
+			<if test="pro.cost!=null">
+				product_price,
+			</if>
+			<if test="orderform.shopNum!=null">
+				product_count,
+			</if>
+			<if test="total!=null">
+				total,
+			</if>
+			<if test="type!=null">
+				type,
+			</if>
+			<if test="allocateDate!=null">
+				allocateDate,
+			</if>
+			<if test="pctt.id!=null">
+				product_type
+			</if>
+		</trim>
+		<trim prefix="values(" suffix=")" suffixOverrides=",">
+			<if test="id!=null">
+				#{id},
+			</if>
+			<if test="sup.id!=null">
+				#{sup.id},
+			</if>
+			<if test="pro.id!=null">
+				#{pro.id},
+			</if>
+			<if test="pro.cost!=null">
+				#{pro.cost},
+			</if>
+			<if test="orderform.shopNum!=null">
+				#{orderform.shopNum},
+			</if>
+			<if test="total!=null">
+				#{total},
+			</if>
+			<if test="type!=null">
+				#{type},
+			</if>
+			<if test="allocateDate!=null">
+				#{allocateDate},
+			</if>
+			<if test="pctt.id!=null">
+				#{pctt.id}
+			</if>
+		</trim>
+	</insert>
+	
+
+    <!-- 查询已入库的进/退单数据 -->
+    <select id="queryByYrk" resultMap="IoAllocateMap">
+    SELECT i.allocate_id,i.product_id,i.PRODUCT_COUNT
+       FROM io_allocate i,order_form o
+       WHERE i.allocate_id=o.order_id AND
+            i.TYPE=2 AND
+            o.order_state_id=1
+    </select>
+
+</mapper>

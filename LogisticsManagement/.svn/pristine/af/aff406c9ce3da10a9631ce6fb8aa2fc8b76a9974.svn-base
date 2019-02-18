@@ -1,0 +1,119 @@
+package com.neusoft.pszxgl.ioallocate.controller;
+
+import java.util.Date;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import com.neusoft.pszxgl.ioallocate.model.IoAllocate;
+import com.neusoft.pszxgl.ioallocate.service.IoAllocateService;
+
+/**
+ * 进退货调度管理Controller
+ */
+@Controller
+public class IoAllocateController {
+	
+	@Autowired
+	private IoAllocateService service;
+	
+	/*退货*/
+	@RequestMapping(value="/querypendingoutAllocate",params="act=query")
+	public String querypendingout(HttpServletRequest request,IoAllocate ia){
+		Integer key = Integer.valueOf(request.getParameter("key"));
+		String str = "/pszxgl/ioallocate/ioallocateoutquery.jsp";
+		if(key==1){
+			List<IoAllocate> list = service.pendingQuery(null);
+			request.getSession().setAttribute("pendinglist", list);
+			request.getSession().setAttribute("key", key);
+		}else{
+			List<IoAllocate> listall = service.queryAll(ia);
+			request.getSession().setAttribute("pendinglist", listall);
+			request.getSession().setAttribute("key", key);
+		}
+		
+		return str;
+	}
+	
+	
+	
+	
+	
+	/*进货*/
+	@RequestMapping(value="/querypendingIoAllocate",params="act=query")
+	public String querypending(HttpServletRequest request,IoAllocate ia){
+		Integer key = Integer.valueOf(request.getParameter("key"));
+		String str = "/pszxgl/ioallocate/ioallocateinquery.jsp";
+		if(key==1){
+			List<IoAllocate> list = service.pendingQuery(null);
+			request.getSession().setAttribute("pendinglist", list);
+			request.getSession().setAttribute("key", key);
+		}else{
+			List<IoAllocate> listall = service.queryAll(ia);
+			request.getSession().setAttribute("pendinglist", listall);
+			request.getSession().setAttribute("key", key);
+		}
+		
+		return str;
+	}
+	
+	
+	
+	/**
+	 * 查询全部数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/queryIoAllocate",params="act=query")
+	public String query(HttpServletRequest request,IoAllocate ia){
+		String str = "";
+		List<IoAllocate> list = service.queryAll(ia);
+		request.getSession().setAttribute("list", list);
+		return str;
+	}
+	
+	
+	/**
+	 * 通过ID查询一条数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/toUpdateIoAllocate",params="act=toUpdate")
+	public String toUpdate(HttpServletRequest request,IoAllocate ia){
+		String str = "";
+		IoAllocate ioallocate = service.queryById(ia.getId());
+		request.getSession().setAttribute("ioallocate", ioallocate);
+		return str;
+	}
+	
+	
+	/**
+	 * 增加一条数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/addIoAllocate",params="act=add")
+	public String add(HttpServletRequest request,IoAllocate ia){
+		String oid = request.getParameter("id");
+		int id = Integer.parseInt(oid);
+		IoAllocate io = service.pendingQueryById(id);
+		io.setType(1);
+		io.setId(id);
+		io.setAllocateDate(new Date());
+		double total=io.getOrderform().getShopNum()*io.getPro().getCost();
+		io.setTotal(total);
+		String str = "/pszxgl/ioallocate/ioallocateinquery.jsp";
+		int i = service.add(io);
+		if(i>0){
+			request.setAttribute("msg", "增加成功！");
+		}else {
+			request.setAttribute("msg", "增加失败！");
+		}
+		return str;
+	}
+	
+}

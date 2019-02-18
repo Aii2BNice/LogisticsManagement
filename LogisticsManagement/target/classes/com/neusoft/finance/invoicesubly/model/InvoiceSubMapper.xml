@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+	
+<mapper namespace="com.neusoft.finance.invoicesubly.model.InvoiceSubMapper">
+	<resultMap type="invoice" id="invoicecxsubmap">
+	<result property="registerDate" column="REGISTER_DATE"/>
+	</resultMap>
+	<!-- 查询全部已登记可以分站领用的发票 -->
+	<select id="invoiceCXSub" resultMap="invoicecxsubmap">
+		select ID,price,REGISTER_DATE
+		FROM invoice
+		WHERE invoice_state_id=1
+		ORDER BY ID
+	</select>
+	<!-- 查询已登记可以分站领用的发票（可以有条件） -->
+    <select id="invoiceCXSubBy" resultMap="invoicecxsubmap">
+		select ID,price,REGISTER_DATE
+		FROM invoice
+		<where>
+	    invoice_state_id=1
+	    <if test="id!=null and id!=''">
+	    and ID=#{id}
+	    </if>
+	    <if test="price!=null and price!=''">
+	    and PRICE=#{price}
+	    </if>
+	    <if test="registerDate!=null">
+	    and REGISTER_DATE=#{registerDate}
+	    </if>
+	    </where>
+	    ORDER BY ID
+	</select>
+	<!-- 根据id更新分站领用发票状态 -->
+	
+	<update id="updateLY" parameterType="InvoiceSub">
+		UPDATE INVOICE
+		SET invoice_state_id=2,
+		    SUBSTATION_ID=#{substationId},
+		    SUBSTATION_DATE=#{substationDate}
+		WHERE ID=#{id}
+	</update>
+</mapper>

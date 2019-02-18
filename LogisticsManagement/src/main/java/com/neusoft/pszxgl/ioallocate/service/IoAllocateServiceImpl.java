@@ -1,0 +1,75 @@
+package com.neusoft.pszxgl.ioallocate.service;
+
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.neusoft.pszxgl.ioallocate.model.IoAllocate;
+import com.neusoft.pszxgl.ioallocate.model.IoAllocateMapper;
+
+/**
+ * 进/退调度单管理 Service实现类
+ */
+@Service
+public class IoAllocateServiceImpl implements IoAllocateService{
+	
+	@Autowired
+	private IoAllocateMapper dao;
+
+	@Override
+	public List<IoAllocate> pendingQuery(IoAllocate ia) {
+		return dao.pendingQuery(ia);
+	}
+
+	@Override
+	public IoAllocate queryById(Integer id) {
+		return dao.queryById(id);
+	}
+
+	@Override
+	public int add(IoAllocate ia) {
+		return dao.add(ia);
+	}
+
+	@Override
+	public IoAllocate pendingQueryById(Integer id) {
+		return dao.pendingQueryById(id);
+	}
+
+	public int pendingUpdate(Integer id) {
+		return dao.pendingUpdate(id);
+	}
+
+	@Override
+	public IoAllocate returnPendingQueryById(Integer id) {
+		return dao.returnPendingQueryById(id);
+	}
+
+	@Override
+	public List<IoAllocate> returnPendingQuery(IoAllocate ia) {
+		return dao.returnPendingQuery(ia);
+	}
+
+	@Override
+	public List<IoAllocate> queryAllIn(IoAllocate ia) {
+		return dao.queryAllIn(ia);
+	}
+
+	@Override
+	public List<IoAllocate> queryAllOut(IoAllocate ia) {
+		return dao.queryAllOut(ia);
+	}
+
+	@Override
+	public int queryCounts(IoAllocate ia) {
+		return dao.queryCounts(ia);
+	}
+
+	@Override
+	public int queryOutCounts(IoAllocate ia) {
+		return dao.queryOutCounts(ia);
+	}
+
+	
+	
+
+}

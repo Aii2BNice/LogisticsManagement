@@ -1,0 +1,131 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>物流配送平台-系统管理</title>
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="renderer" content="webkit">
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<link rel="icon" type="image/png"
+	href="<%=request.getContextPath()%>/assets/i/favicon.png">
+<link rel="apple-touch-icon-precomposed"
+	href="<%=request.getContextPath()%>/assets/i/app-icon72x72@2x.png">
+<meta name="apple-mobile-web-app-title" content="Amaze UI" />
+<link rel="stylesheet"
+	href="<%=request.getContextPath()%>/assets/css/amazeui.min.css" />
+<link rel="stylesheet"
+	href="<%=request.getContextPath()%>/assets/css/admin.css">
+<script src="<%=request.getContextPath()%>/assets/js/jquery.min.js"></script>
+<script src="<%=request.getContextPath()%>/assets/js/app.js"></script>
+<style type="text/css">
+	h2{
+		position: relative;
+		left:400px;
+		top:-15px;
+	}
+	table{
+		width: 80%;
+		position: relative;
+		left:70px;
+		top:-30px;
+	}
+	table tr td{
+		width: 50%;
+	}
+</style>
+</head>
+<body>
+
+	<div id="main">
+		<!-- 右侧主界面   -->
+		<div class="admin-content" id="main-right">
+			<div class="listbiaoti am-cf">
+				<ul class="am-icon-flag on">订单详情</ul>
+				<dl class="am-icon-home" style="float: right;">当前位置： 客户服务中心 ><a href="#">订单管理</a> ><a href="#">订单详情</a></dl>
+			</div>
+			<h2>订单详情</h2><br /><br />
+			<table id="result" class="am-table-bordered am-table-radius am-table-striped am-table-hover">
+				<tr>
+					<td>订单编号</td>
+					<td>${orderForm.orderId}</td>
+				</tr>
+				<tr>
+					<td>商品名</td>
+					<td>${orderForm.productName}</td>
+				</tr>
+				<tr>
+					<td>订购数量</td>
+					<td>${orderForm.shopNum}</td>
+				</tr>
+				<tr>
+					<td>订单价格</td>
+					<td>${orderForm.prderPrice}</td>
+				</tr>
+				<tr>
+					<td>订单状态</td>
+					<td>${orderForm.orderStateName}</td>
+				</tr>
+				<tr>
+					<td>订单类型</td>
+					<td>${orderForm.orderTypeName}</td>
+				</tr>
+				<tr>
+					<td>下单时间</td>
+					<td>
+						<fmt:formatDate value="${orderForm.orderDate}"/>
+					</td>
+				</tr>
+				<tr>
+					<td>送货时间</td>
+					<td>
+						<fmt:formatDate value="${orderForm.deliverDate}"/>
+					</td>
+				</tr>
+				<tr>
+					<td>送货地址</td>
+					<td>${orderForm.deliverAddr}</td>
+				</tr>
+				<tr>
+					<td>备注</td>
+					<td>${orderForm.remark}</td>
+				</tr>
+				<tr>
+					<td>是否开发票</td>
+					<td>
+						<c:if test="${orderForm.invoice}==0">是</c:if>
+						否
+					</td>
+				</tr>
+				<tr>
+					<td>操作员</td>
+					<td>${orderForm.uname}</td>
+				</tr>
+				<tr>
+					<td>收货人</td>
+					<td>${orderForm.receiveName}</td>
+				</tr>
+				<tr>
+					<td>联系方式</td>
+					<td>${orderForm.receiveTel}</td>
+				</tr>
+				
+				<tr>
+					<td>邮编</td>
+					<td>${orderForm.receiveZipCode}</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<a href="<%=request.getContextPath() %>/customer/orderform/queryorder.jsp">返回</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<a href="<%=request.getContextPath() %>/toupdateorderfrom.action?orderId=${orderForm.orderId}">售后</a>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</body>
+</html>

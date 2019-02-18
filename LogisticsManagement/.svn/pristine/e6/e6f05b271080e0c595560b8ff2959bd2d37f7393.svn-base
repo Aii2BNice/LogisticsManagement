@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.fzgl.taskform.model.TaskFormMapper">
+
+	<resultMap type="TaskForm" id="taskFormMap">
+		<id property="orderId" column="order_id"/>
+		<id property="substationId" column="substation_id"/>
+		<id property="shopId" column="shop_id"/>
+		<id property="shopNum" column="shop_num"/>
+		<id property="taskTypeId" column="task_type_id"/>
+		<id property="taskStateId" column="task_state_id"/>
+		<result property="operationTime" column="operation_time"/>
+		<result property="taskStartDate" column="task_date" javaType="java.util.Date"/>
+		<result property="taskEndDate" column="task_date" javaType="java.util.Date"/>
+		<result property="stateName" column="state_name"/>
+		<result property="typeName" column="type_name"/>
+	</resultMap>
+	
+	<select id="queryAll" resultMap="taskFormMap">
+		select id,type_name,state_name
+		from dd_taskform f,dd_taskstate t,dd_tasktype y 
+		<where>
+			t.state_id=f.task_state_id and f.task_type_id=y.type_id
+			<if test="id!=null and id!=''">
+				and id=#{id}
+			</if>
+			<if test="taskStartDate!=null">
+				and task_date>#{taskStartDate}
+			</if>
+			<if test="taskEndDate!=null">
+				and task_date&lt;#{taskEndDate}
+			</if>
+			<if test="typeName!=null and typeName!=''">
+				and type_name like '%'||#{typeName}||'%'
+			</if>
+			<if test="stateName!=null and stateName!=''">
+				and state_name like '%'||#{stateName}||'%'
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryById" resultMap="taskFormMap">
+		select *
+		from dd_taskform f,dd_taskstate t,dd_tasktype y
+		where t.state_id=f.task_state_id and f.task_type_id=y.type_id 
+		and id=#{id}
+	</select>
+
+</mapper>

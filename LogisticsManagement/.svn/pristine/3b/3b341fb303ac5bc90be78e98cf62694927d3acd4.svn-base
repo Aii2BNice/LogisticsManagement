@@ -1,0 +1,37 @@
+package com.neusoft.customer.operationcontroller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.neusoft.system.journal.model.Journal;
+import com.neusoft.system.journal.service.JournalService;
+/**
+ * 客服操作量查询ontroller
+ * @author DYQ
+ *
+ */
+@Controller
+public class OpreationController {
+	
+	@Autowired
+	private JournalService service;
+	
+	/**
+	 * 客服操作量查询
+	 * @param req
+	 * @param journal
+	 * @return
+	 */
+	@RequestMapping("queryoperation")
+	public String queryOperation(HttpServletRequest req,Journal journal){
+		List<Journal> operations = service.queryOperation(journal);
+		req.getSession().setAttribute("operations", operations);
+		req.setAttribute("journal", journal);
+		return "/customer/operation/queryoperation.jsp";
+	}
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+	
+<mapper namespace="com.neusoft.finance.invoicesc.model.InvoiceSSMapper">
+	<!--生成50元的发票  -->
+	<insert id="invoice50">
+	INSERT INTO INVOICE(ID,PRICE,INVOICE_STATE_ID)
+    VALUES(INVOICE_50.NEXTVAL,50,0)
+	</insert>
+	<!--生成100元的发票  -->
+	<insert id="invoice100">
+	INSERT INTO INVOICE(ID,PRICE,INVOICE_STATE_ID)
+    VALUES(INVOICE_100.NEXTVAL,100,0)
+	</insert>
+	<!--生成200元的发票  -->
+	<insert id="invoice200">
+	INSERT INTO INVOICE(ID,PRICE,INVOICE_STATE_ID)
+    VALUES(INVOICE_200.NEXTVAL,200,0)
+	</insert>
+	<!--生成500元的发票  -->
+	<insert id="invoice500">
+	INSERT INTO INVOICE(ID,PRICE,INVOICE_STATE_ID)
+    VALUES(INVOICE_500.NEXTVAL,500,0)
+	</insert>
+	<!--生成1000元的发票  -->
+	<insert id="invoice1000">
+	INSERT INTO INVOICE(ID,PRICE,INVOICE_STATE_ID)
+    VALUES(INVOICE_1000.NEXTVAL,1000,0)
+	</insert>
+</mapper>

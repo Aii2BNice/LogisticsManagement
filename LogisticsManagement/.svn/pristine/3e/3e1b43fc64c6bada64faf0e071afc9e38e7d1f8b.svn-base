@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.fzgl.querypayment.model.QueryPaymentMapper">
+	<resultMap type="QueryPayment" id="QueryPaymentMap">
+		<id property="deliverFormId" column="deliver_form_id"/>
+		<id property="shopId" column="shop_id"/>
+		<result property="shopName" column="shop_name"/>
+		<result property="shopNum" column="shop_num"/>
+		<result property="shopPrice" column="shop_price"/>
+		
+	</resultMap>
+	<!--查询缴款记录 -->
+	<select id="queryPayment" resultMap="QueryPaymentMap">
+		SELECT d.deliver_form_id,t.shop_num,p.shop_name,p.shop_price,d.deliver_form_date
+    	FROM deliver_form d,dd_taskform t,product p 
+        <where>
+        	d.task_id=t.id AND t.shop_id=p.shop_id
+        	<if test="deliverFormId!=null and deliverFormId!=''">
+				and d.deliver_form_id=#{deliverFormId}
+			</if>
+			<if test="taskStartDate!=null">
+				and d.deliver_form_date>#{taskStartDate}
+			</if>
+			<if test="taskEndDate!=null">
+				and d. deliver_form_date&lt;#{taskEndDate}
+			</if>
+			<if test="shopName!=null">
+				and p.shop_name like '%'||#{shopName}||'%'
+			</if>
+        </where>
+	</select>
+
+</mapper>

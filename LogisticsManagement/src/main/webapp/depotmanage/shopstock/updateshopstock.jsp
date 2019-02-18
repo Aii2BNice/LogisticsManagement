@@ -1,0 +1,101 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/assets/css/amazeui.min.css"/>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/assets/css/admin.css">
+
+<title>物流配送平台-仓库管理</title>
+<style type="text/css">
+/*固定表的位置  */
+table{
+	position:relative;
+	left:70px;
+}
+table tr td{
+	height:25px;
+	padding:2px;
+}
+.table-firstline{
+	padding:5px;
+	color:#00A600;
+	background:#AAA;/*不可用？？？  */
+	font-size:15px;
+	
+}
+</style>
+</head>
+<body>
+<div class="admin-biaogelist">
+    <div class="listbiaoti am-cf">
+      <ul class="am-icon-flag on"> 修改商品</ul>
+      
+      <dl class="am-icon-home" style="float: right;">当前位置： 首页 >
+      		<a href="<%=request.getContextPath()%>/depotmanage/depot/queryshopstock.jsp">库存查询</a> >
+      		<a href="<%=request.getContextPath()%>/depotmanage/depot/updateshopstock.jsp">修改商品信息</a></dl>
+      
+    </div>
+<form  action="<%=request.getContextPath()%>/updateShopStock.action" method="post">
+		${msg}
+		<table width="90%" class="am-table-bordered am-table-radius am-table-striped am-table-hover">
+			<tr>
+				<td colspan="2">商品编号:${s.shopId}<input type="hidden" name="shopId" value="${s.shopId}"/></td>
+				<%-- <td><input type="text" value="${list.shopId}" name="depotId"></td> --%>
+			</tr>
+			<tr>
+				<td colspan="2">商品名称:${s.shopName}<input type="hidden" name="shopName" value="${s.shopName}" /></td>
+			</tr>
+			<tr>
+				<td colspan="2">库房编号:${s.depotId}<input type="hidden" name="depotId" value="${s.depotId}"/></td>
+			</tr>
+			<tr>
+				<td>备注</td>
+				<td><input type="text" value="${s.remark}" name="remark"></td>
+			</tr>
+			<tr>
+				<td>总库存量</td>
+				<td><input type="text" value="${s.amount}" name="amount"></td>
+			</tr>
+			<tr>
+				<td>安全库存量</td>
+				<td><input type="text" value="${s.safeAmount}" name="safeAmount"></td>
+			</tr>
+			<tr>
+				<td>缺货数量</td>
+				<td><input type="text" value="${s.lackAmount}" name="lackAmount"></td>
+			</tr>
+			<tr>
+				<td>安排进货量</td>
+				<td><input type="text" value="${s.arrangedAmount}" name="arrangedAmount"></td>
+			</tr>
+			<tr>
+				<td>上次进货日期</td>
+				<td><input type="text" value='<fmt:formatDate value="${s.lastarrangedDate}" pattern="yyyy-MM-dd"/>' name="lastarrangedDate"></td>
+			</tr>
+			<tr>
+				<td>退回数量</td>
+				<td><input type="text" value="${s.returndAmount}" name="returndAmount"></td>
+			</tr>
+			<tr>
+				<td>可分配量</td>
+				<td><input type="text" value="${s.allocatableAmount}" name="allocatableAmount"></td>
+			</tr>
+			<tr>
+				<td>已分配量</td>
+				<td><input type="number" value="${s.allocatedAmount}" name="allocatedAmount"></td>
+			</tr>
+			<tr>
+				<td colspan="2">库存表编号:${s.shopStockId}<input type="hidden" name="shopStockId" value="${s.shopStockId}"/></td>
+			</tr>
+			<tr>
+				<td colspan="2"><input type="submit" value="修改" class="button-style"></td>
+			</tr>
+		</table>
+	</form>
+</div>
+</body>
+</html>

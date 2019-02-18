@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.neusoft.customer.customer.model.ClientMapper" >
+	
+	<resultMap type="client" id="clientMap">
+		<id property="clientId" column="client_id"/>
+		<id property="cardId" column="card_id"/>
+		<id property="zipCode" column="zipcode"/>
+		<result property="clientId" column="client_id"/>
+		<result property="cardId" column="card_id"/>
+		<result property="zipCode" column="zipcode"/>
+	</resultMap>
+	
+	<select id="queryAll" parameterType="client" resultMap="clientMap">
+		select * from client
+		<where>
+			<if test="clientId!=null and clientId!=''">
+				and client_id = #{clientId}
+			</if>
+			<if test="cname!=null and cname!=''">
+				and cname like '%'||#{cname}||'%'
+			</if>
+			<if test="area!=null and area!=''">
+				and area like '%'||#{area}||'%'
+			</if>
+		</where>
+		order by client_id
+	</select>
+	
+	<select id="queryClientById" parameterType="Integer" resultMap="clientMap">
+		select * from client where client_id = #{clientId}
+	</select>
+	
+	<insert id="insert">
+		insert into client 
+		values(client_seq.nextval,#{cname},#{cardId},#{area},
+			   #{tel},#{address},#{zipCode})
+	</insert>
+	
+	<update id="update">
+		update client set
+		cname=#{cname},card_id=#{cardId},
+		area=#{area},tel=#{tel},address=#{address},zipcode=#{zipCode}
+		where client_id=#{clientId}
+	</update>
+	
+	<delete id="delete">
+		delete from client where client_id=#{clientId}
+	</delete>
+</mapper>

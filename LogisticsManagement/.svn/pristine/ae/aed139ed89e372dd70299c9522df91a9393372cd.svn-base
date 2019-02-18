@@ -1,0 +1,235 @@
+package com.neusoft.pszxgl.product.model;
+/**
+ * 商品信息表
+ * id:商品编号
+ * name:商品名称
+ * unit:计量单位
+ * price:商品售价
+ * originalPrice:原价
+ * discount:折扣
+ * cost:成本价
+ * type:商品型号
+ * producerName:生产厂商
+ * manufactureDate:生产日期
+ * productLife:保质期
+ * returnable:可否退货：1为可以，0为不可以
+ * changeable:可否换货：1为可以，0为不可以
+ * 
+ * priceUpper:商品价格上限
+ * priceLower:商品价格下限
+ */
+
+import java.io.Serializable;
+import java.util.Date;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.neusoft.pszxgl.productclassone.model.ProductClassOne;
+import com.neusoft.pszxgl.productclasstwo.model.ProductClassTwo;
+import com.neusoft.pszxgl.supplier.model.Supplier;
+
+public class Product implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
+	private Integer id;
+	private String name;
+	private String unit;
+	private Integer price;
+	private double originalPrice;
+	private double discount;
+	private double cost;
+	private String type;
+	private String producerName;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date manufactureDate;
+
+	private String productLife;
+	private Integer returnable;
+	private Integer changeable;
+	
+	private ProductClassOne pco;
+	private ProductClassTwo pct;
+	private Supplier sup;
+	
+	private Integer priceUpper;
+	private Integer priceLower;
+	
+	//增加分页相关的属性begin
+	private int pageNum; //当前第几页数据
+	private int pageCounts=3; //每页多少条记录
+	private int pages; //一共有多少页
+	private int counts; //一共有多少条记录
+	//增加分页相关的属性end
+	
+	
+	public Product() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public int getPageNum() {
+		return pageNum;
+	}
+	public void setPageNum(int pageNum) {
+		this.pageNum = pageNum;
+	}
+	public int getPageCounts() {
+		return pageCounts;
+	}
+	public void setPageCounts(int pageCounts) {
+		this.pageCounts = pageCounts;
+	}
+	public int getPages() {
+		return pages;
+	}
+	public void setPages(int pages) {
+		this.pages = pages;
+	}
+	public int getCounts() {
+		return counts;
+	}
+	public void setCounts(int counts) {
+		this.counts = counts;
+	}
+	public Product(Integer id, String name, String unit, Integer price, double originalPrice, double discount,
+			double cost, String type, String producerName, Date manufactureDate, String productLife, Integer returnable,
+			Integer changeable, ProductClassOne pco, ProductClassTwo pct, Supplier sup, Integer priceUpper,
+			Integer priceLower) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.unit = unit;
+		this.price = price;
+		this.originalPrice = originalPrice;
+		this.discount = discount;
+		this.cost = cost;
+		this.type = type;
+		this.producerName = producerName;
+		this.manufactureDate = manufactureDate;
+		this.productLife = productLife;
+		this.returnable = returnable;
+		this.changeable = changeable;
+		this.pco = pco;
+		this.pct = pct;
+		this.sup = sup;
+		this.priceUpper = priceUpper;
+		this.priceLower = priceLower;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getUnit() {
+		return unit;
+	}
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+	public Integer getPrice() {
+		return price;
+	}
+	public void setPrice(Integer price) {
+		this.price = price;
+	}
+	public double getOriginalPrice() {
+		return originalPrice;
+	}
+	public void setOriginalPrice(double originalPrice) {
+		this.originalPrice = originalPrice;
+	}
+	public double getDiscount() {
+		return discount;
+	}
+	public void setDiscount(double discount) {
+		this.discount = discount;
+	}
+	public double getCost() {
+		return cost;
+	}
+	public void setCost(double cost) {
+		this.cost = cost;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	public String getProducerName() {
+		return producerName;
+	}
+	public void setProducerName(String producerName) {
+		this.producerName = producerName;
+	}
+	public Date getManufactureDate() {
+		return manufactureDate;
+	}
+	public void setManufactureDate(Date manufactureDate) {
+		this.manufactureDate = manufactureDate;
+	}
+	public String getProductLife() {
+		return productLife;
+	}
+	public void setProductLife(String productLife) {
+		this.productLife = productLife;
+	}
+	public Integer getReturnable() {
+		return returnable;
+	}
+	public void setReturnable(Integer returnable) {
+		this.returnable = returnable;
+	}
+	public Integer getChangeable() {
+		return changeable;
+	}
+	public void setChangeable(Integer changeable) {
+		this.changeable = changeable;
+	}
+	public ProductClassOne getPco() {
+		return pco;
+	}
+	public void setPco(ProductClassOne pco) {
+		this.pco = pco;
+	}
+	public ProductClassTwo getPct() {
+		return pct;
+	}
+	public void setPct(ProductClassTwo pct) {
+		this.pct = pct;
+	}
+	public Supplier getSup() {
+		return sup;
+	}
+	public void setSup(Supplier sup) {
+		this.sup = sup;
+	}
+	public Integer getPriceUpper() {
+		return priceUpper;
+	}
+	public void setPriceUpper(Integer priceUpper) {
+		this.priceUpper = priceUpper;
+	}
+	public Integer getPriceLower() {
+		return priceLower;
+	}
+	public void setPriceLower(Integer priceLower) {
+		this.priceLower = priceLower;
+	}
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	@Override
+	public String toString() {
+		return "Product [id=" + id + ", name=" + name + ", unit=" + unit + ", price=" + price + ", originalPrice="
+				+ originalPrice + ", discount=" + discount + ", cost=" + cost + ", type=" + type + ", producerName="
+				+ producerName + ", manufactureDate=" + manufactureDate + ", productLife=" + productLife
+				+ ", returnable=" + returnable + ", changeable=" + changeable + ", pco=" + pco + ", pct=" + pct
+				+ ", sup=" + sup + ", priceUpper=" + priceUpper + ", priceLower=" + priceLower + "]";
+	}
+}

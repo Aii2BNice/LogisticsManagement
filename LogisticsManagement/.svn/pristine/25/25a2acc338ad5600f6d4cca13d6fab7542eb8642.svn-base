@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.neusoft.system.journal.model.JournalMapper">
+
+	<resultMap type="journal" id="journalMap">
+		<id property="journalId" column="journal_id" />
+		<id property="userName" column="user_name" />
+		<id property="orderId" column="order_id" />
+		<id property="journaldate" column="journal_date" />
+		<id property="operation" column="OPREATION" />
+	</resultMap>
+	
+<!-- 查询所有日志  分页  -->
+	<!-- 查询条件sql  -->
+	<sql id="sqlWhwere">
+		<where>
+			<if test="userName!=null and userName!=''">
+				and user_name = #{userName}
+			</if>
+			<if test="operation!=null and operation!=''">
+				and operation like '%'||#{operation}||'%'
+			</if>
+			<if test="journalBegin!=null and journalEnd!=null">
+				and journal_date between #{journalBegin} and #{journalEnd}
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 查询记录条数 -->	
+	<select id="queryConuts" resultType="int">
+		Select NVL(Count(*),0) sunjournal
+		From journal
+		<include refid="sqlWhwere" />
+	</select>
+	
+	<!-- 查询对应页数据  -->
+	<select id="queryJournalPage" parameterType="journal" resultMap="journalMap">
+		select b.* from 
+          (select rownum rn,a.* from
+            (Select *
+             From journal
+             <include refid="sqlWhwere" />
+             order By order_id) a) b
+        where b.rn > (#{pageNum}-1)*#{pageCounts} AND b.rn <![CDATA[<]]>= #{pageNum}*#{pageCounts}
+	</select>
+	
+	<!-- 查询所有日志  -->
+	<select id="queryAll" parameterType="journal" resultMap="journalMap">
+		Select * From journal
+		<where>
+			<if test="userName!=null and userName!=''">
+				and user_name = #{userName}
+			</if>
+			<if test="operation!=null and operation!=''">
+				and operation like '%'||#{operation}||'%'
+			</if>
+			<if test="journalBegin!=null and journalEnd!=null">
+				and journal_date between #{journalBegin} and #{journalEnd}
+			</if>
+		</where>
+		order by journal_date desc
+	</select>
+	
+	<!-- 查询客服操作日志  -->
+	<select id="queryOperation" parameterType="String" resultMap="journalMap">
+		Select *
+		From journal
+		Where user_name = #{userName}
+			<if test="operation!=null and operation!=''">
+				and operation = #{operation}
+			</if>
+			<if test="journalBegin!=null and journalEnd!=null">
+				and journal_date Between #{journalBegin} and #{journalEnd}
+			</if>
+	</select>
+	
+	<!-- 查询客服操作总金额    -->
+	<select id="queryPrice" resultType="int">
+		Select NVL(Sum(prder_price),0) sumprice
+		From Order_Form
+		<where>
+			<if test="orderTypeId!=null and orderTypeId!=''">
+				and order_type_id = #{orderTypeId}
+			</if>
+			<if test="orderDateBegin!=null and orderDateEnd!=null">
+				and order_date Between #{orderDateBegin} and #{orderDateEnd}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 添加日志  -->
+	<insert id="insert">
+		insert into journal 
+		values(journal_seq.nextval,#{userName},#{orderId},sysdate,#{operation})
+	</insert>
+	
+</mapper>

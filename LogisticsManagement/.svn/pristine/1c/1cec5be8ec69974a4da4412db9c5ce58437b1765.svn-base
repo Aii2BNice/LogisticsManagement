@@ -1,0 +1,226 @@
+package com.neusoft.customer.orderform.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.neusoft.customer.customer.model.Client;
+import com.neusoft.customer.customer.service.ClientService;
+import com.neusoft.customer.orderform.model.OrderForm;
+import com.neusoft.customer.orderform.service.OrderFormService;
+import com.neusoft.pszxgl.product.model.Product;
+import com.neusoft.pszxgl.product.service.ProductService;
+import com.neusoft.system.journal.model.Journal;
+import com.neusoft.system.journal.service.JournalService;
+
+/**
+ * 订单相关Controller
+ * 
+ * @author DYQ
+ *
+ */
+@Controller
+public class OrderFormController {
+
+	@Autowired
+	private OrderFormService service;
+	@Autowired
+	private ProductService productService;
+	@Autowired
+	private JournalService journalService;
+	@Autowired
+	private ClientService clientService;
+	
+	
+	/**
+	 * 查询所有订单 -- 分页
+	 * @param req
+	 * @param orderForm
+	 * @return
+	 */
+	@RequestMapping(value="/queryorderfrom",params="act=query")
+	public String doQuery(HttpServletRequest req, OrderForm orderForm) {
+		String url = "/customer/orderform/queryorder.jsp";
+		
+		int counts = service.queryCounts(orderForm);
+		// 进行分页相关数据的计算-begin
+		int pageNum = orderForm.getPageNum();// 当前第几页
+		int pageCounts = orderForm.getPageCounts();// 每页多少条
+		int pages = counts / pageCounts + (counts % pageCounts > 0 ? 1 : 0);// 一共多少页
+		if (pageNum < 1) {
+			pageNum = 1;
+		}
+		if (pageNum > pages) {
+			pageNum = pages;
+		}
+		orderForm.setPageNum(pageNum);
+		orderForm.setPageCounts(pageCounts);
+		orderForm.setPages(pages);
+		orderForm.setCounts(counts);
+		// 进行分页相关数据的计算-end
+		
+		List<OrderForm> orderforms = service.queryOrderPage(orderForm);
+		req.getSession().setAttribute("orderforms", orderforms);
+		return url;
+	}
+	
+	/**
+	 * 转到查询订单页面
+	 * @param req
+	 * @return
+	 */
+	@RequestMapping(value="/toqueryorder")
+	public String toQueryOrder(HttpServletRequest req) {
+		String url = "/customer/orderform/queryorder.jsp";
+		req.getSession().setAttribute("clientOption", getClientOption());
+		return url;
+	}
+	
+	
+	/**
+	 * 转到订单详情界面
+	 * 
+	 * @param req
+	 * @param orderId
+	 * @return
+	 */
+	@RequestMapping("/todetails")
+	public String toDetails(HttpServletRequest req, Integer orderId) {
+		String url = "/customer/orderform/orderdetails.jsp";
+		OrderForm orderForm = service.queryOrderById(orderId);
+		req.setAttribute("orderForm", orderForm);
+		return url;
+	}
+
+	/**
+	 * 转到退货单界面
+	 * 
+	 * @param req
+	 * @param orderId
+	 * @return
+	 */
+	@RequestMapping(value = "/toReturn", params = "orderId")
+	public String toReturn(HttpServletRequest req, Integer orderId) {
+		String url = "/customer/service/toAddRetuen.jsp";
+		OrderForm orderForm = service.queryOrderById(orderId);
+		Product product = productService.queryById(orderForm.getShopId());
+		req.setAttribute("price", product.getPrice());
+		req.setAttribute("orderForm", orderForm);
+		return url;
+	}
+
+	/**
+	 * 转到换货单界面
+	 * 
+	 * @param req
+	 * @param orderId
+	 * @return
+	 */
+	@RequestMapping(value = "/toExchange", params = "orderId")
+	public String toExchange(HttpServletRequest req, Integer orderId) {
+		String url = "/customer/service/toAddExchange.jsp";
+		OrderForm orderForm = service.queryOrderById(orderId);
+		Product product = productService.queryById(orderForm.getShopId());
+		req.setAttribute("price", product.getPrice());
+		req.setAttribute("orderForm", orderForm);
+		return url;
+	}
+
+	/**
+	 * 新增订单
+	 * 
+	 * @param req
+	 * @param orderForm
+	 * @return
+	 */
+	@RequestMapping("/insertorderform")
+	public String doInsert(HttpServletRequest req, OrderForm orderForm) {
+		String url = "/customer/product/queryproduct.jsp";
+		int count = service.insert(orderForm);
+		if(orderForm.getOrderTypeId()==1){
+			journalService.insert(new Journal(null, orderForm.getUname(), orderForm.getOrderId(), null, null, null, "新订"));
+		}else if(orderForm.getOrderTypeId()==2){
+			journalService.insert(new Journal(null, orderForm.getUname(), orderForm.getOrderId(), null, null, null, "退订"));
+		}else if(orderForm.getOrderTypeId()==3){
+			journalService.insert(new Journal(null, orderForm.getUname(), orderForm.getOrderId(), null, null, null, "换货"));
+		}else{
+			journalService.insert(new Journal(null, orderForm.getUname(), orderForm.getOrderId(), null, null, null, "退货"));
+		}
+		if (count > 0) {
+			req.setAttribute("msg", "订单增加成功");
+		} else {
+			req.setAttribute("msg", "订单增加失败");
+		}
+		return url;
+	}
+
+	/**
+	 * 转到修改订单界面
+	 * 
+	 * @param req
+	 * @param orderId
+	 * @return
+	 */
+	@RequestMapping(value = "/toupdateorderfrom", params = "orderId")
+	public String doUpdate(HttpServletRequest req, Integer orderId) {
+		String url = "/customer/orderform/updateorderform.jsp";
+		OrderForm orderForm = service.queryOrderById(orderId);
+		Product product = productService.queryById(orderForm.getShopId());
+		if (product.getReturnable() != 1 || product.getChangeable() != 1) {
+			req.setAttribute("msg", "该商品不可换货或退货!");
+			url = "/customer/orderform/queryorder.jsp";
+		} else {
+			req.getSession().setAttribute("orders", orderForm);
+			url = "/customer/orderform/updateorderform.jsp";
+		}
+		return url;
+	}
+
+	/**
+	 * 修改订单
+	 * 
+	 * @param req
+	 * @param orderform
+	 * @return
+	 */
+	@RequestMapping(value = "/updateorderfrom")
+	public String update(HttpServletRequest req, OrderForm orderform) {
+		String url = "/customer/orderform/updateorderform.jsp";
+		OrderForm order = service.queryOrderById(orderform.getOrderId());
+		if (order.getOrderStateId() == 1 || order.getOrderStateId() == 2) {
+			int count = service.update(orderform);
+			if (order.getOrderTypeId() == 2) {
+				req.setAttribute("msg", "该订单已退订!");
+			} else if (count > 0) {
+				req.setAttribute("msg", "订单退订成功");
+			} else {
+				req.setAttribute("msg", "订单退订失败");
+			}
+		} else {
+			req.setAttribute("msg", "该订单当前状态不可退订");
+		}
+		return url;
+	}
+	
+	/**
+	 * 获取客户下拉列表
+	 * 
+	 * @return
+	 */
+	public String getClientOption() {
+		StringBuffer client = new StringBuffer();
+		client.append("<option value='0'>--请选择--</option>");
+		List<Client> clients = clientService.queryAll(null);
+		for (Client c : clients) {
+			String value = c.getClientId() + "";
+			String text = c.getCname();
+			client.append("<option value='").append(value).append("'").append(">").append(text).append("</option>");
+		}
+		return client.toString();
+	}
+
+}

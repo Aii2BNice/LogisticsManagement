@@ -1,0 +1,132 @@
+package com.neusoft.system.journal.model;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.neusoft.pszxgl.product.model.Product;
+/**
+ * 日志实体类
+ * @author DYQ
+ *
+ */
+public class Journal implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	private Integer journalId;
+	private String userName;
+	private Integer orderId;
+	private Integer shopId;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private Date journalBegin;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private Date journaldate;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private Date journalEnd;
+	private String operation;
+	
+	private Product product;
+
+	public Journal() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Journal(Integer journalId, String userName, Integer orderId, Integer shopId, Date journalBegin,
+			Date journaldate, Date journalEnd, String operation, Product product) {
+		super();
+		this.journalId = journalId;
+		this.userName = userName;
+		this.orderId = orderId;
+		this.shopId = shopId;
+		this.journalBegin = journalBegin;
+		this.journaldate = journaldate;
+		this.journalEnd = journalEnd;
+		this.operation = operation;
+		this.product = product;
+	}
+
+	public Integer getJournalId() {
+		return journalId;
+	}
+
+	public void setJournalId(Integer journalId) {
+		this.journalId = journalId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public Integer getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(Integer orderId) {
+		this.orderId = orderId;
+	}
+
+	public Integer getShopId() {
+		return shopId;
+	}
+
+	public void setShopId(Integer shopId) {
+		this.shopId = shopId;
+	}
+
+	public Date getJournalBegin() {
+		return journalBegin;
+	}
+
+	public void setJournalBegin(Date journalBegin) {
+		this.journalBegin = journalBegin;
+	}
+
+	public Date getJournaldate() {
+		return journaldate;
+	}
+
+	public void setJournaldate(Date journaldate) {
+		this.journaldate = journaldate;
+	}
+
+	public Date getJournalEnd() {
+		return journalEnd;
+	}
+
+	public void setJournalEnd(Date journalEnd) {
+		this.journalEnd = journalEnd;
+	}
+
+	public String getOperation() {
+		return operation;
+	}
+
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
+
+	public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	@Override
+	public String toString() {
+		return "Journal [journalId=" + journalId + ", userName=" + userName + ", orderId=" + orderId + ", shopId="
+				+ shopId + ", journalBegin=" + journalBegin + ", journaldate=" + journaldate + ", journalEnd="
+				+ journalEnd + ", operation=" + operation + ", product=" + product + "]";
+	}
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+	<!-- 根据条件查询任务单-->
+<mapper namespace="com.neusoft.ddzx.rwdcc.model.TaskMapper1">
+	<!-- 根据条件查询任务单-->
+	<resultMap type="task1" id="taskMap">
+	<id property="taskStateId" column="TASK_STATE_ID"/>
+	<id property="taskTypeId" column="TASK_TYPE_ID"/>
+	<id property="orderId" column="ORDER_ID"/>
+	<id property="substationId" column="SUBSTATION_ID"/>
+	<id property="shopId" column="SHOP_ID"/>
+	<id property="shopNum" column="SHOP_NUM"/>
+	<result property="taskDate" column="TASK_DATE" javaType="java.util.Date"/>
+	<result property="operationTime" column="OPERATION_TIME" javaType="java.util.Date"/>
+	</resultMap>
+	<select id="queryByAll" resultMap="taskMap">
+	select * from DD_TASKFORM
+	 <where>
+	  1=1
+	 <if test="id!=null and id!='' ">
+	 and id=#{id}
+	 </if>
+	 <if test="taskStateId!=null and taskStateId!=''">
+	 and TASK_STATE_ID=#{taskStateId}
+	 </if>
+	 <if test="taskTypeId!=null and taskTypeId!=''">
+	 and TASK_TYPE_ID=#{taskTypeId}
+	 </if>
+	 <if test="orderId!=null and orderId!=''">
+	 and ORDER_ID=#{orderId}
+	 </if>
+	 </where> 
+	 </select>
+	<!-- 根据订单号查询任务单 -->
+	<select id="queryByOrderId" resultMap="taskMap">
+	 select * from DD_TASKFORM
+	  where ORDER_ID=#{orderId}
+	</select>
+</mapper>

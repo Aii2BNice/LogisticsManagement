@@ -1,0 +1,203 @@
+package com.neusoft.pszxgl.ioallocate.controller;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import com.neusoft.pszxgl.ioallocate.model.IoAllocate;
+import com.neusoft.pszxgl.ioallocate.service.IoAllocateService;
+import com.neusoft.system.journal.model.Journal;
+import com.neusoft.system.journal.service.JournalService;
+
+/**
+ * 进退货调度管理Controller
+ */
+@Controller
+public class IoAllocateController {
+	
+	@Autowired
+	private IoAllocateService service;
+	
+	@Autowired
+	private JournalService journalService;
+	
+	/*退货*/
+	@RequestMapping(value="/querypendingoutAllocate",params="act=query")
+	public String querypendingout(HttpServletRequest request,IoAllocate io){
+		Integer key = Integer.valueOf(request.getParameter("ke"));
+		String str = "/pszxgl/ioallocate/ioallocateoutquery.jsp";
+		
+		//获取一共有多少条记录
+		int counts = service.queryOutCounts(io);
+				
+		//进行分页相关数据的计算-begin
+		int pageNum = io.getPageNum();//当前第几页
+		int pageCounts = io.getPageCounts();//每页多少条
+		System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxx"+pageCounts);
+		int pages = counts/pageCounts + (counts%pageCounts>0?1:0);//一共多少页
+		if(pageNum<1){
+			pageNum = 1;
+		}
+		if(pageNum>pages){
+			pageNum = pages;
+		}
+		io.setPageNum(pageNum);
+		io.setPageCounts(pageCounts);
+		io.setPages(pages);
+		io.setCounts(counts);
+		//进行分页相关数据的计算-end
+		
+		if(key==1){
+			if(io.getId()!=null){
+				IoAllocate lisat = service.returnPendingQueryById(io.getId());
+				List<IoAllocate> lista = new ArrayList<IoAllocate>();
+				lista.add(lisat);
+				request.getSession().setAttribute("outlist", lista);
+				request.getSession().setAttribute("ke", key);
+			}else{
+				List<IoAllocate> list = service.returnPendingQuery(io);
+				request.getSession().setAttribute("outlist", list);
+				request.getSession().setAttribute("ke", key);
+			}
+		}else{
+			List<IoAllocate> listall = service.queryAllOut(io);
+			request.getSession().setAttribute("outlist", listall);
+			request.getSession().setAttribute("ke", key);
+		}
+		
+		return str;
+	}
+	
+	
+	
+	
+	
+	/*进货*/
+	@RequestMapping(value="/querypendingIoAllocate",params="act=query")
+	public String querypending(HttpServletRequest request,IoAllocate ia){
+		Integer key = Integer.valueOf(request.getParameter("key"));
+		String str = "/pszxgl/ioallocate/ioallocateinquery.jsp";
+		
+		//获取一共有多少条记录
+		int counts = service.queryCounts(ia);
+		//进行分页相关数据的计算-begin
+		int pageNum = ia.getPageNum();//当前第几页
+		int pageCounts = ia.getPageCounts();//每页多少条
+		int pages = counts/pageCounts + (counts%pageCounts>0?1:0);//一共多少页
+		if(pageNum<1){
+			pageNum = 1;
+		}
+		if(pageNum>pages){
+			pageNum = pages;
+		}
+		ia.setPageNum(pageNum);
+		ia.setPageCounts(pageCounts);
+		ia.setPages(pages);
+		ia.setCounts(counts);
+		//进行分页相关数据的计算-end
+		
+		if(key==1){
+			if(ia.getId()!=null){
+				IoAllocate lis = service.pendingQueryById(ia.getId());
+				List<IoAllocate> lista = new ArrayList<IoAllocate>();
+				lista.add(lis);
+				request.getSession().setAttribute("pendinglist", lista);
+				request.getSession().setAttribute("key", key);
+			}else{
+				List<IoAllocate> list = service.pendingQuery(ia);
+				request.getSession().setAttribute("pendinglist", list);
+				request.getSession().setAttribute("key", key);
+			}
+		}else{
+			List<IoAllocate> listall = service.queryAllIn(ia);
+			request.getSession().setAttribute("pendinglist", listall);
+			request.getSession().setAttribute("key", key);
+		}
+		
+		return str;
+	}
+	
+	
+	
+	/**
+	 * 查询全部数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/queryIoAllocate",params="act=query")
+	public String query(HttpServletRequest request,IoAllocate ia){
+		String str = "";
+//		List<IoAllocate> list = service.queryAll(ia);
+//		request.getSession().setAttribute("list", list);
+		return str;
+	}
+	
+	
+	/**
+	 * 通过ID查询一条数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/toUpdateIoAllocate",params="act=toUpdate")
+	public String toUpdate(HttpServletRequest request,IoAllocate ia){
+		String str = "";
+		IoAllocate ioallocate = service.queryById(ia.getId());
+		request.getSession().setAttribute("ioallocate", ioallocate);
+		return str;
+	}
+	
+	
+	/**
+	 * 增加一条数据
+	 * @param request 请求对象
+	 * @param pco 封装前台提交的请求参数
+	 * @return 返回URL
+	 */
+	@RequestMapping(value="/addIoAllocate",params="act=inadd")
+	public String inadd(HttpServletRequest request,IoAllocate ia){
+		journalService.insert(new Journal(null, "nongkai", ia.getId(), null, null, null, "新建购货单"));
+		String oid = request.getParameter("id");
+		int id = Integer.parseInt(oid);
+		IoAllocate io = service.pendingQueryById(id);
+		io.setType(1);
+		io.setId(id);
+		io.setAllocateDate(new Date());
+		double total=io.getOrderform().getShopNum()*io.getPro().getCost();
+		io.setTotal(total);
+		String str = "/pszxgl/ioallocate/ioallocateinquery.jsp";
+		int i = service.add(io);
+		if(i>0){
+			request.setAttribute("msg", "增加成功！");
+		}else {
+			request.setAttribute("msg", "增加失败！");
+		}
+		return str;
+	}
+	
+	@RequestMapping(value="/addIoAllocate",params="act=outadd")
+	public String outadd(HttpServletRequest request,IoAllocate ia){
+		journalService.insert(new Journal(null, "nongkai", ia.getId(), null, null, null, "新建购货单"));
+		String oid = request.getParameter("id");
+		int id = Integer.parseInt(oid);
+		IoAllocate io = service.returnPendingQueryById(id);
+		io.setType(0);
+		io.setId(id);
+		io.setAllocateDate(new Date());
+		double total=io.getOrderform().getShopNum()*io.getPro().getCost();
+		io.setTotal(total);
+		String str = "/pszxgl/ioallocate/ioallocateoutquery.jsp";
+		int i = service.add(io);
+		if(i>0){ 
+			request.setAttribute("msg", "增加成功！");
+		}else {
+			request.setAttribute("msg", "增加失败！");
+		}
+		return str;
+	}
+	
+}

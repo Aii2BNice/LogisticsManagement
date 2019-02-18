@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.fzgl.deliverform.model.DeliverFormMapper">
+	<resultMap type="DeliverForm" id="deliverFormMap">
+		<id property="deliverFormId" column="deliver_form_id"/>
+		<id property="taskId" column="task_id"/>
+		<id property="deliverId" column="deliver_id"/>
+		<id property="shopId" column="shop_id"/>
+		<result property="deliverFormDate" column="deliver_form_date"/>
+		<result property="clientReaction" column="client_reaction"/>
+		<result property="deliverName" column="deliver_name"/>
+		<result property="shopNum" column="shop_num"/>
+		<result property="shopName" column="shop_name"/>
+		<result property="shopPrice" column="shop_price"/>
+		<result property="producerName" column="producername"/>
+		<result property="printNum" column="print_num"/>
+		
+	</resultMap>
+	<!--生成配送签收单 -->
+	<insert id="addDeliver">
+		INSERT INTO deliver_form 
+		VALUES(deliver_form_seq.nextval,#{taskId},#{deliverId},sysdate,NULL,0)<!--后三项为配送单生产日期，客户反馈，打印次数  -->
+	</insert>
+	
+	<!--查询配送签收单  -->
+	<select id="queryDeliverForm" resultMap="deliverFormMap">
+		select t.deliver_form_id,t.task_id,t.deliver_id,t.deliver_form_date,t.client_reaction,d.deliver_name,t.print_num 
+		from DELIVER_FORM t,DELIVER d
+		WHERE t.deliver_id=d.deliver_id
+		order by t.deliver_form_date desc
+	</select>
+	
+	<!--任务状态更改为已分配  -->
+	<update id="updateTFS">
+		UPDATE dd_taskform
+		SET task_state_id=2
+		WHERE ID=#{taskId}
+	</update>
+	
+	<!--订单状态更改为已分配  -->
+	<update id="updateOFS">
+		UPDATE order_form
+		SET order_state_id=2
+		WHERE order_id=(SELECT order_id FROM dd_taskform WHERE ID=#{taskId}) 
+	</update>
+	
+	
+	<!--多表连接，查询生成打印单  -->
+	<select id="queryPrintForm" resultMap="deliverFormMap">
+		SELECT d.deliver_form_id,t.shop_num,e.deliver_name,p.shop_name,p.producername,p.shop_price,d.print_num
+		FROM deliver_form d,dd_taskform t,deliver e,product p
+		WHERE d.task_id=t.id AND 
+			  d.deliver_id=e.deliver_id AND 
+			  t.shop_id=p.shop_id AND 
+			  deliver_form_id=#{deliverFormId}
+	</select>
+	
+	<!--打印次数加1  -->
+	<update id="updatePrintNum">
+		UPDATE DELIVER_FORM
+		SET print_num=#{printNum}
+		WHERE DELIVER_FORM_id=#{deliverFormId}
+	</update>
+	
+	<!--配送员状态置为'配送中...'  -->
+	<update id="updateDeliverState">
+		UPDATE deliver 
+		SET deliver_state=1
+		WHERE deliver_id=#{deliverId}
+	</update>
+
+</mapper>

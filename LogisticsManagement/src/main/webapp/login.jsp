@@ -1,0 +1,58 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>用户登录</title>
+<link rel="shortcut icon" href="img/logo_min.png"/>
+<link href="css/style_log.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+	#label input{
+		width: 58%;
+	}
+	#label img{
+		height: 30px;
+		position: relative;
+		top:10px;
+		left:10px;
+	}
+	#msg{
+		color: red;
+	}
+</style>
+</head>
+<body class="login" mycollectionplug="bind">
+	<div class="login_m">
+		<div class="login_logo">
+			<p>用户登录</p>
+		</div>
+		<form action="<%=request.getContextPath() %>/login.action" method="post">
+			<div class="login_boder">
+				<div class="login_padding" id="login_model">
+					<h2>用户名</h2>
+					<label> <input type="text" name="uname" class="txt_input txt_input2" placeholder="请输入用户名"/>
+					</label>
+					<h2>密码</h2>
+					<label> <input type="password" name="pass" class="txt_input" placeholder="请输入密码">
+					</label>
+					<h2>验证码</h2>
+					<label id="label"> 
+						<input type="text" name="validCode" class="txt_input" placeholder="请输入验证码">
+						<img id="imgValidCode" onclick="doClick(this)" src="<%=request.getContextPath() %>/ValidateCodeServlet"/>
+					</label>
+					<div>
+						<span id="msg">${msg}</span>  
+					</div>
+					<input type="submit" id="button" value="登陆" style="opacity: 0.7; margin: 0 auto;">
+				</div>
+			</div> 
+		</form>
+	</div>
+	<script type="text/javascript">
+		function doClick(node){
+			node.src = "<%=request.getContextPath() %>/ValidateCodeServlet?dump="+new Date();
+		}
+	</script>
+</body>
+</html>

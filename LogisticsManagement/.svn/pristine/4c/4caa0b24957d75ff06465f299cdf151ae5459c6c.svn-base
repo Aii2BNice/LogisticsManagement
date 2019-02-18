@@ -1,0 +1,178 @@
+package com.neusoft.customer.orderform.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.neusoft.customer.customer.model.Client;
+import com.neusoft.customer.customer.service.ClientService;
+import com.neusoft.depotmanage.shop.service.ShopStockService;
+import com.neusoft.pszxgl.product.model.Product;
+import com.neusoft.pszxgl.product.service.ProductService;
+import com.neusoft.pszxgl.productclassone.model.ProductClassOne;
+import com.neusoft.pszxgl.productclassone.service.ProductClassOneService;
+import com.neusoft.pszxgl.productclasstwo.model.ProductClassTwo;
+import com.neusoft.pszxgl.productclasstwo.service.ProductClassTwoService;
+
+/**
+ * 查询所有商品Controller
+ * @author DYQ
+ *
+ */
+@Controller
+public class QueryAllProductController {
+
+	@Autowired
+	private ProductService service;
+	@Autowired
+	private ProductClassOneService pcoService;
+	@Autowired
+	private ProductClassTwoService pctService;
+	@Autowired
+	private ClientService clientService;
+	@Autowired
+	private ShopStockService shopStockService;
+	
+	
+	/**
+	 * 进入商品查询页面,显示商品一级分类
+	 * @param req
+	 * @param pro
+	 * @return
+	 */
+	@RequestMapping("/toQueryProduct")
+	public String toQueryAllProduct(HttpServletRequest req, Product pro) {
+		req.getSession().setAttribute("pcos", getProductClassOne(null));
+		return "/customer/product/queryproduct.jsp";
+	}
+
+	/**
+	 * 查询商品
+	 * @param req
+	 * @param pro
+	 * @return
+	 */
+	@RequestMapping("/queryProduct")
+	public String queryAllProduct(HttpServletRequest req, Product pro) {
+		List<Product> products = service.queryAllProduct(pro);
+		if (products != null) {
+			req.setAttribute("pro", pro);
+			req.getSession().setAttribute("products", products);
+		}
+		return "/customer/product/queryproduct.jsp";
+	}
+
+	/**
+	 * 转到增加订单
+	 * @param req
+	 * @param shopId
+	 * @return
+	 */
+	@RequestMapping(value = "toAddOrder", params = "shopId")
+	public String toAddOrder(HttpServletRequest req, Integer shopId) {
+		Product product = service.queryById(shopId);
+		//查询当前商品库存量
+		req.setAttribute("sumamount", shopStockService.queryByShopId(shopId));
+		req.setAttribute("shopId", product.getId());
+		req.setAttribute("productName", product.getName());
+		req.setAttribute("price", product.getPrice());
+		req.getSession().setAttribute("clientOption", getClientOption());
+		return "/customer/orderform/addorderform.jsp";
+	}
+
+	/**
+	 * Ajax返回商品二级分类
+	 * @param req
+	 * @param pco
+	 * @return
+	 */
+	@RequestMapping(value = "productClassTwo")
+	@ResponseBody
+	public String productClassTwo(HttpServletRequest req, @RequestBody ProductClassOne pco) {
+		if (pco.getId() == 0) {
+			return "<option value='0'>--请选择--</option>";
+		} else {
+			return getProductClassTwo(pco);
+		}
+	}
+
+	/**
+	 * 返回客户相关信息
+	 * @param req
+	 * @param client
+	 * @return
+	 */
+	@RequestMapping(value = "clientMessage")
+	@ResponseBody
+	public Client clientMessage(HttpServletRequest req, @RequestBody Client client) {
+		return getClientMessage(client.getClientId());
+	}
+
+	/**
+	 * 获取指定客户信息
+	 * @param clientId
+	 * @return
+	 */
+	public Client getClientMessage(Integer clientId) {
+		return clientService.queryClientById(clientId);
+	}
+
+	/**
+	 * 获取客户下拉列表
+	 * @return
+	 */
+	public String getClientOption() {
+		StringBuffer client = new StringBuffer();
+		client.append("<option value='0'>--请选择--</option>");
+		List<Client> clients = clientService.queryAll(null);
+		for (Client c : clients) {
+			String value = c.getClientId() + "";
+			String text = c.getCname();
+			client.append("<option value='").append(value).append("'").append(">").append(text).append("</option>");
+		}
+		return client.toString();
+	}
+
+	/**
+	 * 获取一级商品下拉列表
+	 * @param pcoId
+	 * @return
+	 */
+	public String getProductClassOne(Integer pcoId) {
+		StringBuffer pco = new StringBuffer();
+		List<ProductClassOne> pcos = pcoService.queryAll(null);
+		for (ProductClassOne poc1 : pcos) {
+			String value = poc1.getId() + "";
+			String text = poc1.getName();
+			pco.append("<option value='").append(value).append("'")
+					.append(poc1.getId().equals(pcoId) ? "selected='selected'" : "").append(">").append(text)
+					.append("</option>");
+		}
+		return pco.toString();
+	}
+
+	/**
+	 * 获取商品二级分类下拉列表
+	 * @param pco
+	 * @return
+	 */
+	public String getProductClassTwo(ProductClassOne pco) {
+		StringBuffer pcto = new StringBuffer();
+		List<ProductClassTwo> pcts = pctService.queryAll(new ProductClassTwo(null, null, pco));
+		for (ProductClassTwo poc1 : pcts) {
+			String value = poc1.getId() + "";
+			String text = poc1.getName();
+			pcto.append("<option value='").append(value).append("'")
+					.append(poc1.getId().equals(pco.getId()) ? "selected='selected'" : "").append(">").append(text)
+					.append("</option>");
+		}
+		return pcto.toString();
+	}
+
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neusoft.ddzx.qhddztxg.model.Order1Mapper">
+	<!-- 查询缺货订单表 -->
+	<resultMap type="Order" id="orderMap">
+	<id property="orderId" column="ORDER_ID"/>
+	<id property="shopId" column="SHOP_ID"/>
+	<id property="clientId" column="CLIENT_ID"/>
+	<id property="prderPrice" column="PRDER_PRICE"/>
+	<id property="orderStateId" column="ORDER_STATE_ID"/>
+	<id property="orderTypeId" column="ORDER_TYPE_ID"/>
+	<id property="substationId" column="SUBSTATION_ID"/>
+	<id property="operationId" column="OPERATION_ID"/>
+	<id property="receiveTel" column="RECEIVE_TEL"/>
+	<result property="shopNum" column="SHOP_NUM"/>
+	<result property="orderDate" column="ORDER_DATE" javaType="java.util.Date"/>
+	<result property="deliverDate" column="DELIVER_DATE" javaType="java.util.Date"/>
+	<result property="deliverAddr" column="DELIVER_ADDR"/>
+	<result property="receiveName" column="RECEIVE_NAME"/>
+	<result property="receiveZipcode" column="RECEIVE_ZIPCODE"/>
+	</resultMap>
+	<select id="queryAllQh" resultMap="orderMap">
+		select * from ORDER_FORM
+		 where ORDER_STATE_ID=1
+	</select>
+	<!-- 修改缺货订单为未配送状态 -->
+	<update id="updateQh">
+		update ORDER_FORM
+		set ORDER_STATE_ID=2
+		where ORDER_ID=#{orderId}
+	</update>
+</mapper>

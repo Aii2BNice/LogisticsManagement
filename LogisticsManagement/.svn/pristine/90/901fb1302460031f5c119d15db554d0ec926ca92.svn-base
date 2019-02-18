@@ -1,0 +1,43 @@
+package com.neusoft.fzgl.deliver.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.neusoft.fzgl.deliver.model.Deliver;
+import com.neusoft.fzgl.deliver.model.TaskFormB;
+import com.neusoft.fzgl.deliver.service.DeliverService;
+import com.neusoft.system.journal.model.Journal;
+import com.neusoft.system.journal.service.JournalService;
+
+@Controller
+public class DeliverController {
+
+	@Autowired
+	private DeliverService service;
+	
+
+	@RequestMapping("/queryKFP")
+	public String queryKFP(HttpServletRequest req,TaskFormB tf){
+		String str="/fzgl/taskoperation/taskallocation.jsp";
+		List<TaskFormB> list = service.queryKFP(tf);
+		req.setAttribute("list", list);
+		return str;
+	}
+	
+	@RequestMapping("/deliverQuery")
+	public String deliverQuery(HttpServletRequest req,Deliver d,Integer id){
+		String str="/fzgl/taskoperation/deliver.jsp";
+		List<Deliver> list=service.deliverQuery(d);
+		req.getSession().setAttribute("deliverP",list);
+//		将任务单号单独保存传给前台
+		req.setAttribute("taskformId", id);
+		return str;
+	}
+
+
+}

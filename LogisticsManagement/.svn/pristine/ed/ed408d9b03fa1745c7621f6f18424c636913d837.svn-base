@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"  >
+
+<mapper namespace="com.neusoft.customer.orderform.model.OrderFormMapper">
+
+	<resultMap type="orderform" id="orderMap">
+		<id property="orderId" column="order_id" />
+		<id property="shopId" column="shop_id" />
+		<id property="clientId" column="client_id" />
+		<id property="shopNum" column="shop_num" />
+		<id property="prderPrice" column="prder_price" />
+		<id property="orderStateId" column="order_state_id" />
+		<id property="orderTypeId" column="order_type_id" />
+		<id property="orderStateName" column="order_state_name" />
+		<id property="orderTypeName" column="order_type_name" />
+		<id property="orderDate" column="order_date" />
+		<id property="deliverDate" column="deliver_date" />
+		<id property="deliverAddr" column="deliver_addr" />
+		<id property="substationId" column="substation_id" />
+		<id property="receiveName" column="receive_name" />
+		<id property="receiveTel" column="receive_tel" />
+		<id property="receiveZipCode" column="receive_zipcode" />
+		<id property="productName" column="shop_name" />
+		<id property="depotName" column="depot_address" />
+	</resultMap>
+
+	<!-- 查询订单 -->
+	<select id="queryAll" parameterType="orderform" resultMap="orderMap">
+		Select o.*,p.shop_name,c.cname,os.order_state_name,ot.order_type_name,d.depot_address
+    	From order_form o,product p ,client c,Order_State os, Order_Type ot,depot d
+    	Where o.shop_id = p.shop_id And o.client_id = c.client_id And
+        	  o.order_state_id = os.order_state_id And 
+        	  o.order_type_id = ot.order_type_id and
+        	  o.substation_id = d.depot_id
+			  <include refid="querywhere" />
+		order by order_id
+	</select>
+	
+	<!-- 根据ID查询一条数据 -->
+	<select id="queryOrderById" resultMap="orderMap">
+		Select o.*,p.shop_name,c.cname,os.order_state_name,ot.order_type_name,d.depot_address
+		From order_form o,product p ,client c,Order_State os, Order_Type ot,depot d
+		Where o.shop_id = p.shop_id And o.client_id = c.client_id And
+			  o.order_state_id = os.order_state_id And 
+			  o.order_type_id = ot.order_type_id and
+			  o.substation_id = d.depot_id and
+			  o.order_id = #{orderId}
+		order by order_id
+	</select>
+	
+	<!-- 增加订单 -->
+	<insert id="insert">
+		insert into order_form
+		values(order_form_seq.nextval,#{shopId},#{clientId},#{shopNum},#{prderPrice},1,
+		#{orderTypeId},sysdate,null,#{deliverAddr},#{remark},#{invoice},#{substationId},
+		#{uname},#{receiveName},#{receiveTel},#{receiveZipCode})
+		<selectKey keyProperty="orderId" order="AFTER" resultType="int">
+			select order_form_seq.currval from dual
+		</selectKey>
+	</insert>
+
+	<!-- 修改订单状态 -->
+	<update id="update">
+		update order_form set
+		<if test="orderStateId!=null and orderStateId!=''">order_state_Id = #{orderStateId},</if>
+		<if test="orderTypeId!=null and orderTypeId!=''">order_type_id = #{orderTypeId}</if>
+		where order_id = #{orderId}
+	</update>
+
+	<!-- 删除订单 -->
+	<delete id="delete">
+		delete from order_form where order_id = #{orderId}
+	</delete>
+
+	<!-- 条件查询片段 -->
+	<sql id="querywhere">
+		<if test="productName!=null and productName!=''">
+			and shop_name like '%'||#{productName}||'%'
+		</if>
+		<if test="orderTypeId!=null and orderTypeId!=''">
+			and o.order_type_id = #{orderTypeId}
+		</if>
+		<if test="clientId!=null and clientId!=''">
+			and o.client_Id = #{clientId}
+		</if>
+		<if test="orderDateBegin!=null and orderDateEnd!=null">
+			and order_date between #{orderDateBegin} and #{orderDateEnd}
+		</if>
+	</sql>
+</mapper>

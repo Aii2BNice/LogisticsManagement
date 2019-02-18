@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neusoft.ddzx.sgdd.model.OrderMapper">
+	<!-- 根据订单状态编号查询订单表 -->
+	<resultMap type="Order" id="orderMap">
+	<id property="orderId" column="ORDER_ID"/>
+	<id property="shopId" column="SHOP_ID"/>
+	<id property="clientId" column="CLIENT_ID"/>
+	<id property="prderPrice" column="PRDER_PRICE"/>
+	<id property="orderStateId" column="ORDER_STATE_ID"/>
+	<id property="orderTypeId" column="ORDER_TYPE_ID"/>
+	<id property="substationId" column="SUBSTATION_ID"/>
+	<id property="operationId" column="OPERATION_ID"/>
+	<id property="receiveTel" column="RECEIVE_TEL"/>
+	<result property="shopNum" column="SHOP_NUM"/>
+	<result property="orderDate" column="ORDER_DATE" javaType="java.util.Date"/>
+	<result property="deliverDate" column="DELIVER_DATE" javaType="java.util.Date"/>
+	<result property="deliverAddr" column="DELIVER_ADDR"/>
+	<result property="receiveName" column="RECEIVE_NAME"/>
+	<result property="receiveZipcode" column="RECEIVE_ZIPCODE"/>
+	</resultMap>
+	<!-- 根据订单条件查询订单表（简要）  -->
+	<select id="queryByStateId" resultMap="orderMap">
+		select * from ORDER_FORM
+		<where>
+		<if test="orderStateId!=null and orderStateId!=''">
+		and ORDER_STATE_ID=#{orderStateId}
+		</if>
+		<if test="orderId!=null and orderId!=''">
+		and ORDER_ID=#{orderId}
+		</if>
+		<if test="orderTypeId!=null and orderTypeId!=''">
+		and ORDER_TYPE_ID=#{orderTypeId}
+		</if>
+		</where>
+		  
+	</select>
+	<!-- 根据订单id查询订单表  -->
+	<select id="queryByOrderId" resultMap="orderMap">
+		select * from ORDER_FORM
+		 where ORDER_ID=#{orderId}
+	</select>
+	<!-- 修改已经手工调度的订单状态编号 -->
+	<update id="update">
+		update ORDER_FORM
+		set ORDER_STATE_ID=3
+		 where ORDER_ID=#{orderId}
+	</update>
+	<!-- 根据处理分站不为空可分配查询订单表  -->
+	<select id="queryByZd" resultMap="orderMap">
+		select * from ORDER_FORM
+		 where ORDER_STATE_ID=2
+		 and substation_id is not null
+		 AND order_type_id IN (1,3)
+	</select>
+	<!-- 自动生成任务单 -->
+	<insert id="zdaddtask">
+		insert into DD_TASKFORM
+		 values(TASKFORM_ID.NEXTVAL,2,1,
+		#{orderId},#{substationId},to_date(to_char(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd'),
+		#{shopId},#{shopNum},'王宝强',
+		to_date(to_char(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd'))
+	</insert>
+</mapper>

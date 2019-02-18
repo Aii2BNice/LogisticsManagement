@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.depotmanage.depot.model.DepotMapper">
+	
+	<resultMap type="depot" id="depotMap">
+		<id property="depotId" column="depot_id"/>
+		<id property="depotLevel" column="depot_level"/>
+		<id property="adminId" column="admin_id"/>
+		<result property="depotName" column="depot_name"/>
+		<result property="depotAddress" column="depot_address"/>
+		<result property="depotLevel" column="depot_level"/>
+	</resultMap>
+	
+	<select id="queryAll" resultMap="depotMap">
+		select * from depot
+		<where>
+			<if test="depotId!=null">
+				and depot_id = #{depotId}
+			</if>
+			<if test="depotName!=null and depotName!=''">
+				and depot_name like '%'||#{depotName}||'%'
+			</if>
+			<if test="depotLevel!=null">
+				and depot_level like '%'||#{depotLevel}||'%'
+			</if>
+		</where>
+		order by depot_id
+	</select>
+	
+	<select id="queryById" resultMap="depotMap">
+		select * from depot where depot_id =#{depotId}
+	</select>
+	
+	<insert id="add">
+		insert into depot(depot_id,depot_name,depot_address,depot_level,admin_id)
+			values(#{depotId},#{depotName},#{depotAddress},#{depotLevel},#{adminId})
+		<!-- <selectKey keyProperty="depotId" order="AFTER" resultType="int">
+			select my_seq.currval from dual
+		</selectKey> -->
+	</insert>
+	
+	<update id="update">
+		update depot set
+			depot_name=#{depotName},
+			depot_address=#{depotAddress},
+			depot_level=#{depotLevel},
+			admin_id=#{adminId}
+		where depot_id=#{depotId}
+	</update>
+	
+	<delete id="delete">
+		delete from depot where depot_id=#{depotId}
+	</delete>
+	
+</mapper>

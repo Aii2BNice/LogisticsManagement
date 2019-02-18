@@ -1,0 +1,119 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>物流配送平台-系统管理</title>
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="renderer" content="webkit">
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<link rel="icon" type="image/png"
+	href="<%=request.getContextPath()%>/assets/i/favicon.png">
+<link rel="apple-touch-icon-precomposed"
+	href="<%=request.getContextPath()%>/assets/i/app-icon72x72@2x.png">
+<meta name="apple-mobile-web-app-title" content="Amaze UI" />
+<link rel="stylesheet"
+	href="<%=request.getContextPath()%>/assets/css/amazeui.min.css" />
+<link rel="stylesheet"
+	href="<%=request.getContextPath()%>/assets/css/admin.css">
+<script src="<%=request.getContextPath()%>/assets/js/jquery.min.js"></script>
+<script src="<%=request.getContextPath()%>/assets/js/app.js"></script>
+<style type="text/css">
+	h2{
+		position: relative;
+		left:400px;
+		top:-15px;
+	}
+	table{
+		width: 80%;
+		position: relative;
+		left:70px;
+		top:-30px;
+	}
+	table tr td{
+		width:25%;
+	}
+</style>
+</head>
+<body>
+
+	<div id="main">
+
+		<!-- 右侧主界面   -->
+		<div class="admin-content" id="main-right">
+			<div class="listbiaoti am-cf">
+				<ul class="am-icon-flag on">修改客户信息</ul>
+				<dl class="am-icon-home" style="float: right;">当前位置： 客户服务中心 ><a href="#">客户管理</a> ><a href="#">修改客户信息</a></dl>
+			</div>
+			<h2>修改客户信息</h2><br /><br />
+			<form action="<%=request.getContextPath()%>/updateclient.action"
+				method="post">
+				<table class="am-table-bordered am-table-radius am-table-striped am-table-hover">
+					<tr>
+						<td>客户编号:</td>
+						<td>
+							<input type="hidden" name="clientId" value="${client.clientId}"/>
+						</td>
+					</tr>
+					<tr>
+						<td>客户名:</td>
+						<td>
+							<input type="text" name="cname" value="${client.cname}"/>
+						</td>
+					</tr>
+					<tr>
+						<td>身份证号:</td>
+						<td>
+							<input type="text" name="cardId" value="${client.cardId}"/>
+						</td>
+					</tr>
+					<tr>
+						<td>地区:</td>
+						<td>
+							<input type="text" name="area" value="${client.area}"/>
+						</td>
+					</tr>
+					<tr>
+						<td>电话:</td>
+						<td>
+							<input type="text" name="tel" value="${client.tel}"/>
+						</td>
+					</tr>
+					<tr>
+						<td>地址:</td>
+						<td>
+							<input type="text" name="address" value="${client.address}"/>
+						</td>
+					</tr>
+					<tr>
+						<td>邮编:</td>
+						<td>
+							<input type="text" name="zipCode" value="${client.zipCode}"/>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<input type="submit" value="修改" class="button-style"/>
+							<input type="reset" value="清除" class="button-style"/>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<a href="<%=request.getContextPath()%>/customer/client/queryclient.jsp">返回</a>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+<script type="text/javascript">
+	var msg = "<%=request.getAttribute("msg") %>";
+	if(msg!="null"){
+		alert(msg);
+	}
+</script>
+</body>
+</html>

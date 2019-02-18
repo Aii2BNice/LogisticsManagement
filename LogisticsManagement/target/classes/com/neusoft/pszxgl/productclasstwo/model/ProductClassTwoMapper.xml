@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.pszxgl.productclasstwo.model.ProductClassTwoMapper">
+	<!-- 商品二级分类配置 -->
+	<resultMap type="ProductClassTwo" id="ProductClassTwoMap">
+		<id property="id" column="pct_id" />
+		<result property="name" column="pct_name" />
+		<association property="pco" select="queryPco" column="pco_id" ></association>
+	</resultMap>
+	
+	<!-- 商品一级分类配置 -->
+	<resultMap type="ProductClassOne" id="ProductClassOneMap">
+		<id property="id" column="pco_id" />
+		<result property="name" column="pco_name" />
+	</resultMap>
+	
+	<!-- 查询商品一级分类全部数据 -->
+	<select id="queryPco" resultMap="ProductClassOneMap">
+		select pco_id,pco_name from PRODUCT_CLASS_ONE
+		 	where pco_id = #{id}
+	</select>
+	
+	
+	<!-- 查询商品二级分类全部数据 -->
+	<select id="queryAll" resultMap="ProductClassTwoMap" >
+		SELECT pct_id,pct_name,pco_id,pco_name
+		FROM PRODUCT_CLASS_ONE,PRODUCT_CLASS_TWO
+		<where>
+			<if test="id==id">
+				belong_id=pco_id
+			</if>
+			<if test="id!=null and id!=''">
+				and pct_id=#{id}
+			</if>
+			<if test="name!=null and name!=''">
+				and pct_name =#{name}
+			</if>
+			<if test="pco!=null">
+				<if test="pco.id!=null">
+				and belong_id=#{pco.id}
+			</if>
+			</if>
+			
+		</where>
+		ORDER BY pct_id
+	</select>
+
+
+	<!-- 通过Id查询商品二级分类数据 -->
+	<select id="queryById" parameterType="int" resultMap="ProductClassTwoMap">
+		SELECT pct_id,pct_name,pco_id,pco_name
+		FROM PRODUCT_CLASS_ONE,PRODUCT_CLASS_TWO
+		WHERE belong_id=pco_id and pct_id=#{id}
+	</select>
+
+
+	<!-- 增加商品二级分类数据 -->
+	<insert id="add">
+		insert into PRODUCT_CLASS_TWO
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="1==1">
+				pct_id,
+			</if>
+			<if test="name!=null">
+				pct_name,
+			</if>
+			<if test="pco!=null">
+				<if test="pco.id!=null">
+				belong_id,
+			</if>
+			</if>
+			
+			
+		</trim>
+		<trim prefix="values(" suffix=")" suffixOverrides=",">
+			<if test="1==1">
+				nk_b.nextval,
+			</if>
+			<if test="name!=null">
+				#{name},
+			</if>
+			<if test="pco!=null">
+				<if test="pco.id!=null">
+				#{pco.id},
+			</if>
+			</if>
+			
+		</trim>
+	</insert>
+
+
+	<!-- 修改商品二级分类数据 -->
+	<update id="update">
+		update PRODUCT_CLASS_TWO
+		<set>
+			<if test="name!=null and name!=''">
+				pct_name=#{name},
+			</if>
+			<if test="pco!=null">
+				<if test="pco.id!=null and pco.id!=''">
+				belong_id=#{pco.id}
+			</if>
+			</if>
+			
+			where pct_id = #{id}
+		</set>
+	</update>
+
+
+	<!-- 删除商品二级分类数据 -->
+	<delete id="delete" parameterType="int">
+		delete PRODUCT_CLASS_TWO
+		where
+		pct_id = #{id}
+	</delete>
+	
+	<!-- 分页实现begin -->
+	<!-- 有分页功能的查询-查询指定页的数据 -->
+	<select id="queryAllPage" resultMap="ProductClassTwoMap">
+		select b.* from
+		(select rownum rn, a.* from		
+		(select * from PRODUCT_CLASS_TWO,PRODUCT_CLASS_ONE
+		<include refid="queryPageSql" />
+		order by belong_id) a) b
+		where b.rn > (#{pageNum}-1)*#{pageCounts} AND b.rn <![CDATA[<]]>= #{pageNum}*#{pageCounts} 
+	</select>
+		
+	<!-- 有分页功能的查询-查询一共有多少条记录 -->
+	<select id="queryCounts" resultType="int">
+		select count(*) from PRODUCT_CLASS_TWO,PRODUCT_CLASS_ONE
+		<include refid="queryPageSql" />
+	</select>
+	
+	<!-- 有查询条件的sql片段 -->
+	<sql id="queryPageSql">
+		<where>
+			<if test="id==id">
+				belong_id=pco_id
+			</if>
+			<if test="id!=null and id!=''">
+				and pct_id=#{id}
+			</if>
+			<if test="name!=null and name!=''">
+				and pct_name =#{name}
+			</if>
+			<if test="pco!=null">
+			<if test="pco.id!=null and pco.id!=''">
+				and belong_id=#{pco.id}
+			</if>
+			</if>
+			
+		</where>
+	</sql>
+<!-- 分页实现end -->
+
+</mapper>

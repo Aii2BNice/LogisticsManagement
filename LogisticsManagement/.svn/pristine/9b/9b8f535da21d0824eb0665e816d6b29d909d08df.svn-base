@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neusoft.fzgl.returnreceipt.model.ReturnReceiptMapper">
+
+	<resultMap type="ReturnReceipt" id="ReturnReceiptMap">
+		<id property="deliverFormId" column="deliver_form_id"/>
+		<id property="deliverId" column="deliver_id"/>
+		<id property="taskStateId" column="task_state_id"/>
+		<result property="deliverName" column="deliver_name"/>
+		<result property="stateName" column="state_name"/>
+		<result property="typeName" column="type_name"/>
+	</resultMap>
+	<!--查询任务状态小于5的任务单信息  -->
+	<select id="queryReturnReceipt" resultMap="ReturnReceiptMap">
+		SELECT t.deliver_form_id,d.deliver_name,y.type_name
+		from DELIVER_FORM t,deliver d,dd_taskform f,dd_tasktype y,dd_taskstate s
+		<where>
+			t.deliver_id=d.deliver_id 
+			AND f.id=t.task_id AND f.task_type_id=y.type_id
+      		AND f.task_state_id=s.state_id 
+     		AND s.state_id&lt;5
+			<if test="deliverFormId!=null and deliverFormId!=''">
+				and t.deliver_form_id=#{deliverFormId}
+			</if>
+			<if test="deliverName!=null and deliverName!=''">
+				and d.deliver_name like '%'||#{deliverName}||'%'
+			</if>
+		</where>
+	</select>
+	<!--修改任务状态id置为5-完成、6-部分完成、7-失败  -->
+	<update id="updateTaskState">
+		UPDATE dd_taskform 
+		SET task_state_id=#{taskStateId}
+		WHERE ID=(SELECT task_id FROM deliver_form WHERE deliver_form_id=#{deliverFormId})
+	</update>
+	
+	<!--修改订单状态置为完成、失败 -->
+		<!--查询任务状态返回给Controller  -->
+	<select id="queryTaskState" resultType="int">
+		SELECT task_state_id FROM dd_taskform
+		WHERE ID=(SELECT task_id 
+				  FROM deliver_form 
+				  WHERE deliver_form_id=#{deliverFormId}) 
+	</select>
+	
+	<update id="updateOrderState">
+	UPDATE order_form
+	SET order_state_id=#{orderStateId}
+	WHERE order_id=(SELECT order_id 
+               		FROM dd_taskform 
+                	WHERE ID=(SELECT task_id 
+                		  FROM deliver_form 
+                		  WHERE deliver_form_id=#{deliverFormId})
+                	)
+	</update>	
+	
+	<!--查询配送员号  -->
+	<select id="queryDeliverId" resultType="int" >
+		select deliver_id
+		from deliver_form
+		where deliver_form_id=#{deliverFormId}
+	</select>
+	
+	<!--配送员状态置为'可配送'  -->
+	<update id="updateDeliverState">
+		UPDATE deliver 
+		SET deliver_state=0
+		WHERE deliver_id=#{deliverId}
+	</update>
+	
+
+</mapper>

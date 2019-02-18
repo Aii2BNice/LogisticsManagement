@@ -1,0 +1,202 @@
+package com.neusoft.customer.orderform.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.neusoft.customer.customer.model.Client;
+import com.neusoft.customer.customer.service.ClientService;
+import com.neusoft.depotmanage.shop.service.ShopStockService;
+import com.neusoft.pszxgl.product.model.Product;
+import com.neusoft.pszxgl.product.service.ProductService;
+import com.neusoft.pszxgl.productclassone.model.ProductClassOne;
+import com.neusoft.pszxgl.productclassone.service.ProductClassOneService;
+import com.neusoft.pszxgl.productclasstwo.model.ProductClassTwo;
+import com.neusoft.pszxgl.productclasstwo.service.ProductClassTwoService;
+
+/**
+ * 商品查询Controller
+ * 
+ * @author DYQ
+ *
+ */
+@Controller
+public class QueryAllProductController {
+
+	@Autowired
+	private ProductService service;
+	@Autowired
+	private ProductClassOneService pcoService;
+	@Autowired
+	private ProductClassTwoService pctService;
+	@Autowired
+	private ClientService clientService;
+	@Autowired
+	private ShopStockService shopStockService;
+
+	/**
+	 * 转到商品查询界面
+	 * 
+	 * @param req
+	 * @param pro
+	 * @return
+	 */
+	@RequestMapping("/toQueryProduct")
+	public String toQueryAllProduct(HttpServletRequest req, Product pro) {
+		req.getSession().setAttribute("pcos", getProductClassOne(null));
+		return "/customer/product/queryproduct.jsp";
+	}
+
+	/**
+	 * 查询商品 --分页
+	 * @param req
+	 * @param pro
+	 * @return
+	 */
+	@RequestMapping(value="/queryPro",params="act=query")
+	public String queryAllProduct(HttpServletRequest req, Product pro) {
+		// 获取一共有多少条记录
+		int counts = service.queryCounts(pro);
+
+		// 进行分页相关数据的计算-begin
+		int pageNum = pro.getPageNum();// 当前第几页
+		int pageCounts = pro.getPageCounts();// 每页多少条
+		int pages = counts / pageCounts + (counts % pageCounts > 0 ? 1 : 0);// 一共多少页
+		if (pageNum < 1) {
+			pageNum = 1;
+		}
+		if (pageNum > pages) {
+			pageNum = pages;
+		}
+		pro.setPageNum(pageNum);
+		pro.setPageCounts(pageCounts);
+		pro.setPages(pages);
+		pro.setCounts(counts);
+		// 进行分页相关数据的计算-end
+
+		// 获取指定页的数据
+		List<Product> list = service.queryAllPage(pro);
+		req.getSession().setAttribute("products", list);
+		return "/customer/product/queryproduct.jsp";
+	}
+
+	/**
+	 * 转到增加订单界面
+	 * 
+	 * @param req
+	 * @param shopId
+	 * @return
+	 */
+	@RequestMapping(value = "toAddOrder", params = "shopId")
+	public String toAddOrder(HttpServletRequest req, Integer shopId) {
+		Product product = service.queryById(shopId);
+		req.setAttribute("sumamount", shopStockService.queryByShopId(shopId));
+		req.setAttribute("shopId", product.getId());
+		req.setAttribute("productName", product.getName());
+		req.setAttribute("price", product.getPrice());
+		req.getSession().setAttribute("clientOption", getClientOption());
+		return "/customer/orderform/addorderform.jsp";
+	}
+
+	/**
+	 * Ajax获取商品二级分类
+	 * 
+	 * @param req
+	 * @param pco
+	 * @return
+	 */
+	@RequestMapping(value = "productClassTwo")
+	@ResponseBody
+	public String productClassTwo(HttpServletRequest req, @RequestBody ProductClassOne pco) {
+		if (pco.getId() == 0) {
+			return "<option value='0'>--请选择--</option>";
+		} else {
+			return getProductClassTwo(pco);
+		}
+	}
+
+	/**
+	 * 获取客户信息
+	 * 
+	 * @param req
+	 * @param client
+	 * @return
+	 */
+	@RequestMapping(value = "clientMessage")
+	@ResponseBody
+	public Client clientMessage(HttpServletRequest req, @RequestBody Client client) {
+		return getClientMessage(client.getClientId());
+	}
+
+	/**
+	 * 获取指定客户信息
+	 * 
+	 * @param clientId
+	 * @return
+	 */
+	public Client getClientMessage(Integer clientId) {
+		return clientService.queryClientById(clientId);
+	}
+
+	/**
+	 * 获取客户下拉列表
+	 * 
+	 * @return
+	 */
+	public String getClientOption() {
+		StringBuffer client = new StringBuffer();
+		client.append("<option value='0'>--请选择--</option>");
+		List<Client> clients = clientService.queryAll(null);
+		for (Client c : clients) {
+			String value = c.getClientId() + "";
+			String text = c.getCname();
+			client.append("<option value='").append(value).append("'").append(">").append(text).append("</option>");
+		}
+		return client.toString();
+	}
+
+	/**
+	 * 获取商品一级分类
+	 * 
+	 * @param pcoId
+	 * @return
+	 */
+	public String getProductClassOne(Integer pcoId) {
+		StringBuffer pco = new StringBuffer();
+		List<ProductClassOne> pcos = pcoService.queryAll(null);
+		for (ProductClassOne poc1 : pcos) {
+			String value = poc1.getId() + "";
+			String text = poc1.getName();
+			pco.append("<option value='").append(value).append("'")
+					.append(poc1.getId().equals(pcoId) ? "selected='selected'" : "").append(">").append(text)
+					.append("</option>");
+		}
+		return pco.toString();
+	}
+
+	/**
+	 * 获取商品二级分类
+	 * 
+	 * @param pco
+	 * @return
+	 */
+	public String getProductClassTwo(ProductClassOne pco) {
+		StringBuffer pcto = new StringBuffer();
+		List<ProductClassTwo> pcts = pctService.queryAll(new ProductClassTwo(null, null, pco));
+		for (ProductClassTwo poc1 : pcts) {
+			String value = poc1.getId() + "";
+			String text = poc1.getName();
+			pcto.append("<option value='").append(value).append("'")
+					.append(poc1.getId().equals(pco.getId()) ? "selected='selected'" : "").append(">").append(text)
+					.append("</option>");
+		}
+		return pcto.toString();
+	}
+
+}

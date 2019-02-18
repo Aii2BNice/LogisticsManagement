@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+	
+<mapper namespace="com.neusoft.ddzx.zzdd.model.ZDAllocateMapper">
+	<!-- 自动生成调拨单 -->
+	<insert id="addAllocate">
+	insert into DD_ALLOCATEFORM
+	  values(ALLOCATEFORM_ID.NEXTVAL,#{orderId},#{taskId},
+	         1,#{substationId},
+	         to_date(to_char(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd'),
+	         to_date(to_char(SYSDATE,'yyyy-mm-dd'),'yyyy-mm-dd'),
+	         #{shopId},#{shopNum},0)
+	</insert>
+</mapper>

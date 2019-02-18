@@ -1,0 +1,159 @@
+package com.neusoft.customer.customer.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.neusoft.customer.customer.model.Client;
+import com.neusoft.customer.customer.service.ClientService;
+import com.neusoft.customer.orderform.model.OrderForm;
+import com.neusoft.customer.orderform.service.OrderFormService;
+import com.neusoft.system.user.model.Message;
+/**
+ * 客户相关Controller
+ * @author DYQ
+ *
+ */
+@Controller
+public class ClientController {
+
+	@Autowired
+	private ClientService service;
+	@Autowired
+	private OrderFormService orderFormService;
+	
+	/**
+	 * 查询所有客户
+	 * @param req
+	 * @param client
+	 * @return
+	 */
+	@RequestMapping("queryclient")
+	public String queryAll(HttpServletRequest req, Client client) {
+		String url = "/customer/client/queryclient.jsp";
+		List<Client> clients = service.queryAll(client);
+		if (clients != null) {
+			req.setAttribute("cname", client.getCname());
+			req.setAttribute("area", client.getArea());
+			req.getSession().setAttribute("clients", clients);
+		}
+		return url;
+	}
+	
+	/**
+	 * 增加客户信息
+	 * @param req
+	 * @param client
+	 * @return
+	 */
+	@RequestMapping("insertclient")
+	public String insert(HttpServletRequest req, Client client) {
+		String url = "/customer/client/addclient.jsp";
+		int count;
+		try{
+			count = service.insert(client);
+		}catch(Exception e){
+			count = 0;
+		}
+		if(count>0){
+			req.setAttribute("msg", "客户增加成功");
+		}else{
+			req.setAttribute("msg", "客户增加失败");
+		}
+		return url;
+	}
+	
+	/**
+	 * 转到客户详情界面
+	 * @param req
+	 * @param clientId
+	 * @return
+	 */
+	@RequestMapping(value="toupdateclient",params="clientId")
+	public String toUpdate(HttpServletRequest req, Integer clientId) {
+		String url = "/customer/client/updateclient.jsp";
+		Client client = service.queryClientById(clientId);
+		req.setAttribute("client", client);
+		return url;
+	}
+	
+	/**
+	 * 修改客户信息
+	 * @param req
+	 * @param client
+	 * @return
+	 */
+	@RequestMapping(value="updateclient")
+	public String update(HttpServletRequest req, Client client) {
+		String url = "/customer/client/queryclient.jsp";
+		int count;
+		try{
+			count = service.update(client);
+		}catch(Exception e){
+			count = 0;
+		}
+		if(count>0){
+			req.setAttribute("msg", "客户修改成功");
+		}else{
+			req.setAttribute("msg", "客户修改失败");
+		}
+		return url;
+	}
+	
+	/**
+	 * 删除客户信息
+	 * @param req
+	 * @param clientId
+	 * @return
+	 */
+	@RequestMapping(value="deleteclient",params="clientId")
+	public String delete(HttpServletRequest req, Integer clientId) {
+		String url = "/customer/client/queryclient.jsp";
+		int count;
+		OrderForm of = new OrderForm();
+		of.setClientId(clientId);
+		List<OrderForm> orders = orderFormService.queryAll(of);
+		if(orders.size()>0){
+			count = 0;
+		}else{
+			try{
+				count = service.delete(clientId);
+			}catch(Exception e){
+				count = 0;
+			}
+		}
+		if(count>0){
+			req.setAttribute("msg", "客户删除成功");
+		}else{
+			req.setAttribute("msg", "客户删除失败");
+		}
+		return url;
+	}
+	
+	/**
+	 * 客户名验证
+	 * @param req
+	 * @param user
+	 * @param message
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/verifictionclient")
+	@ResponseBody
+	public Message verifictionClient(HttpServletRequest req, 
+			@RequestBody Client client, Message message) throws Exception {
+		List<Client> clients = service.queryAll(client);
+		if(clients.size()>0){
+			message.setMessage("客户名已存在");
+			req.setAttribute("messages", message);
+		}
+		return message;
+	}
+
+}

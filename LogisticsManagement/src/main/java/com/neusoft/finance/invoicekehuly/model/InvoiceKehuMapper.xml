@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+	
+<mapper namespace="com.neusoft.finance.invoicekehuly.model.InvoiceKehuMapper">
+	<resultMap type="Invoice" id="invoiceKeHuMap">
+	<id property="invoiceStateId" column="INVOICE_STATE_ID"  jdbcType="INTEGER"/>
+	<id property="substationId" column="SUBSTATION_ID" jdbcType="INTEGER"/>
+	<id property="taskId" column="TASK_ID" jdbcType="INTEGER"/>
+	<id property="oringalInvoiceId" column="ORINGAL_INVOICE_ID" jdbcType="INTEGER"/>
+	<id property="deliverId" column="DELIVER_ID" jdbcType="INTEGER"/>
+	<result property="registerDate" column="REGISTER_DATE" javaType="java.util.Date"/>
+	<result property="substationDate" column="SUBSTATION_DATE" javaType="java.util.Date"/>
+	<result property="customerDate" column="CUSTOMER_DATE" javaType="java.util.Date"/>
+	<result property="lostDate" column="LOST_DATE" javaType="java.util.Date"/>
+	<result property="loseName" column="LOSE_NAME" jdbcType="VARCHAR"/>
+	</resultMap>
+	<!-- 查询全部已登记可以客户领用的发票 -->
+	<select id="invoiceCXQBKehu" resultMap="invoiceKeHuMap">
+		select ID,price,REGISTER_DATE,SUBSTATION_ID,SUBSTATION_DATE
+		FROM invoice
+		WHERE invoice_state_id=2
+	</select>
+	<!-- 查询已登记可以客户领用的发票（可以有条件） -->
+	<select id="invoiceCXKehu" resultMap="invoiceKeHuMap">
+		select ID,price,REGISTER_DATE,SUBSTATION_ID,SUBSTATION_DATE
+		FROM invoice
+		<where>
+	    invoice_state_id=2
+	    <if test="id!=null and id!=''">
+	    and ID=#{id}
+	    </if>
+	    <if test="price!=null and price!=''">
+	    and PRICE=#{price}
+	    </if>
+	    <if test="registerDate!=null">
+	    and REGISTER_DATE=#{registerDate}
+	    </if>
+	    <if test="substationId!=null and substationId!=''">
+	    and SUBSTATION_ID=#{substationId}
+	    </if>
+	    <if test="substationDate!=null">
+	    and SUBSTATION_DATE=#{substationDate}
+	    </if>
+	    </where>
+	    ORDER BY ID
+	</select>
+	<!-- 根据id更新客户领用发票状态 -->
+	
+	<update id="updateKehu">
+		UPDATE INVOICE
+		SET invoice_state_id=3,
+		    CUSTOMER_DATE=#{customerDate},
+		    TASK_ID=#{taskId},
+		    DELIVER_ID=#{deliverId},
+		    REMARK=#{remark}
+		WHERE ID=#{id}
+	</update>
+	
+	<!--根据配送员号查询任务单号  -->
+	<select id="queryTaskIdByD" resultType="String">
+		SELECT task_id FROM deliver_form WHERE deliver_id=#{deliverId}
+	</select>
+</mapper>

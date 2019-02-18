@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.neusoft.system.user.model.UserMapper" >
+	
+	<resultMap type="user" id="userMap">
+		<id property="powerId" column="power"/>
+		<id property="powerName" column="power_name"/>
+		<id property="url" column="URL"/>
+		<result property="powerId" column="power"/>
+		<result property="powerName" column="power_name"/>
+		<result property="url" column="URL"/>
+	</resultMap>
+	
+	<!-- 用户有效性验证  -->
+	<select id="verifiction" resultMap="userMap">
+		select uname from userinfo where uname=#{uname}
+	</select>
+	
+	<!-- 登陆验证  -->
+	<select id="login" parameterType="user" resultMap="userMap"> 
+		Select * From userinfo Where uname=#{uname}  And pass=#{pass}
+	</select>
+	
+	<!-- 根据用户名查询用户信息  -->
+	<select id="queryUser" parameterType="user" resultType="user"> 
+		Select * From userinfo Where uname=#{uname}
+	</select>
+	
+	<!-- 查询所有用户  -->
+	<select id="queryAll" parameterType="user" resultMap="userMap">
+		Select u.*,p.power_name
+		From UserInfo u Join Power p On u.power = p.power_id
+		<where>
+			<if test="uname!=null and uname!=''">
+				and uname like '%'||#{uname}||'%'
+			</if>
+			<if test="powerId!=null and powerId!=''">
+				and power =#{powerId}
+			</if>
+		</where>
+		order by power desc
+	</select>
+	
+	<!-- 增加用户  -->
+	<insert id="insert" parameterType="user">
+		Insert Into userinfo (uname,pass,power)
+		Values(#{uname},#{pass},#{powerId})
+	</insert>
+	
+	<!-- 修改用户  -->
+	<update id="update">
+		update userinfo 
+		set pass=#{pass},power=#{powerId}
+		where uname=#{uname}
+	</update>
+	
+	<!-- 用户修改密码  -->
+	<update id="alterUser">
+		update userinfo 
+		set pass=#{pass}
+		where uname=#{uname}
+	</update>
+	
+	<!-- 用户修改头像  -->
+	<update id="alterUserImg">
+		update userinfo 
+		set url=#{url}
+		where uname=#{uname}
+	</update>
+	
+	<!-- 删除用户  -->
+	<delete id="delete">
+		delete from userinfo where uname = #{uname}
+	</delete>
+	
+<!-- 分页查询begin -->
+	
+	<!-- 分页查询-查询共有多少条记录  -->
+	<select id="queryCounts" resultType="int">
+		select count(*) from userinfo
+		<include refid="queryPage" />	
+	</select>
+	
+	<!-- 查询指定页的数据 -->
+	<select id="queryAllPage" resultMap="userMap">
+		select b.* from 
+			(select rownum rn,a.* from
+				(select u.*,p.power_name
+				 From UserInfo u Join Power p On u.power = p.power_id
+				 <include refid="queryPage"/>
+				 order by power desc) a) b
+		where b.rn > (#{pageNum}-1)*#{pageCounts} AND b.rn <![CDATA[<]]>= #{pageNum}*#{pageCounts} 
+	</select>
+	
+	<!-- 条件查询Sql片段  -->
+	<sql id="queryPage">
+		<where>
+			<if test="uname!=null and uname!=''">
+				and uname like '%'||#{uname}||'%'
+			</if>
+			<if test="powerId!=null and powerId!=''">
+				and power =#{powerId}
+			</if>
+		</where>
+	</sql>
+	
+<!--  分页查询end  -->
+</mapper>

@@ -1,0 +1,25 @@
+package com.neusoft.pszxgl.ioallocate.model;
+
+import java.util.List;
+
+
+/**
+ * 进/退货调度单dao层接口
+ */
+public interface IoAllocateMapper {
+	IoAllocate pendingQueryById(Integer id);
+	List<IoAllocate> pendingQuery(IoAllocate ia);
+	
+	IoAllocate returnPendingQueryById(Integer id);
+	List<IoAllocate>returnPendingQuery(IoAllocate ia);
+	
+	List<IoAllocate> queryAll(IoAllocate ia);
+
+	IoAllocate queryById(Integer id);
+
+	int add(IoAllocate ia);
+	
+	int pendingUpdate(Integer id);
+	
+	public List<IoAllocate> queryByYrk();
+}

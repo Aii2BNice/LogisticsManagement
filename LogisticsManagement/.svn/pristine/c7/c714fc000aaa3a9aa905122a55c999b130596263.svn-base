@@ -1,0 +1,157 @@
+package com.neusoft.customer.orderform.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.neusoft.customer.orderform.model.OrderForm;
+import com.neusoft.customer.orderform.service.OrderFormService;
+import com.neusoft.pszxgl.product.model.Product;
+import com.neusoft.pszxgl.product.service.ProductService;
+
+/**
+ * 订单相关Controller
+ * @author DYQ
+ *
+ */
+@Controller
+public class OrderFormController {
+
+	@Autowired
+	private OrderFormService service;
+	@Autowired
+	private ProductService productService;
+
+	/**
+	 * 查询所有订单
+	 * @param req
+	 * @param orderForm
+	 * @return
+	 */
+	@RequestMapping("/queryorderfrom")
+	public String doQuery(HttpServletRequest req, OrderForm orderForm) {
+		String url = "/customer/orderform/queryorder.jsp";
+		List<OrderForm> orderforms = service.queryAll(orderForm);
+		if (orderforms != null) {
+			req.setAttribute("productName", orderForm.getProductName());
+			req.setAttribute("cname", orderForm.getCname());
+			req.getSession().setAttribute("orderforms", orderforms);
+		}
+		return url;
+	}
+
+	/**
+	 * 转到订单详情界面
+	 * @param req
+	 * @param orderId
+	 * @return
+	 */
+	@RequestMapping("/todetails")
+	public String toDetails(HttpServletRequest req, Integer orderId) {
+		String url = "/customer/orderform/orderdetails.jsp";
+		OrderForm orderForm = service.queryOrderById(orderId);
+		req.setAttribute("orderForm", orderForm);
+		return url;
+	}
+	
+	/**
+	 * 转到退货单界面
+	 * @param req
+	 * @param orderId
+	 * @return
+	 */
+	@RequestMapping(value="/toReturn",params="orderId")
+	public String toReturn(HttpServletRequest req, Integer orderId) {
+		String url = "/customer/service/toAddRetuen.jsp";
+		OrderForm orderForm = service.queryOrderById(orderId);
+		System.out.println("----------"+orderForm);
+		req.setAttribute("orderForm", orderForm);
+		return url;
+	}
+	
+	/**
+	 * 转到换货单界面
+	 * @param req
+	 * @param orderId
+	 * @return
+	 */
+	@RequestMapping(value="/toExchange",params="orderId")
+	public String toExchange(HttpServletRequest req, Integer orderId) {
+		String url = "/customer/service/toAddExchange.jsp";
+		OrderForm orderForm = service.queryOrderById(orderId);
+		Product product = productService.queryById(orderForm.getShopId());
+		req.setAttribute("price", product.getPrice());
+		req.setAttribute("orderForm", orderForm);
+		return url;
+	}
+
+	/**
+	 * 新增订单
+	 * @param req
+	 * @param orderForm
+	 * @return
+	 */
+	@RequestMapping("/insertorderform")
+	public String doInsert(HttpServletRequest req, OrderForm orderForm) {
+		String url = "/customer/product/queryproduct.jsp";
+		System.out.println("------------"+orderForm);
+		int count = service.insert(orderForm);
+		if (count > 0) {
+			req.setAttribute("msg", "订单增加成功");
+		} else {
+			req.setAttribute("msg", "订单增加失败");
+		}
+		return url;
+	}
+
+	/**
+	 * 转到修改订单界面
+	 * @param req
+	 * @param orderId
+	 * @return
+	 */
+	@RequestMapping(value = "/toupdateorderfrom", params = "orderId")
+	public String doUpdate(HttpServletRequest req, Integer orderId) {
+		String url = "/customer/orderform/updateorderform.jsp";
+		OrderForm orderForm = service.queryOrderById(orderId);
+		Product product = productService.queryById(orderForm.getShopId());
+		if (product.getReturnable() != 1 || product.getChangeable() != 1) {
+			req.setAttribute("msg", "该商品不可换货或退货!");
+			url = "/customer/orderform/queryorder.jsp";
+		} else {
+			req.getSession().setAttribute("orders", orderForm);
+			url = "/customer/orderform/updateorderform.jsp";
+		}
+		return url;
+	}
+
+	/**
+	 * 修改订单
+	 * @param req
+	 * @param orderform
+	 * @return
+	 */
+	@RequestMapping(value = "/updateorderfrom")
+	public String update(HttpServletRequest req, OrderForm orderform) {
+		String url = "/customer/orderform/updateorderform.jsp";
+		OrderForm order = service.queryOrderById(orderform.getOrderId());
+		if(order.getOrderStateId()==1 || order.getOrderStateId()==2){
+			int count = service.update(orderform);
+			if(order.getOrderTypeId()==2){
+				req.setAttribute("msg", "该订单已退订!");
+			}else if(count>0){
+				req.setAttribute("msg", "订单退订成功");
+			}else{
+				req.setAttribute("msg", "订单退订失败");
+			}
+		}else{
+			req.setAttribute("msg", "该订单当前状态不可退订");
+		}
+		return url;
+	}
+
+}

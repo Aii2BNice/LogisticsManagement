@@ -1,0 +1,40 @@
+package com.neusoft.finance.invoicedj.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.Response;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.neusoft.finance.invoicedj.model.InvoiceCXDJ;
+import com.neusoft.finance.invoicedj.service.InvoiceDJService;
+
+@Controller
+public class InvoiceDJController {
+	@Autowired
+	private InvoiceDJService service;
+	@RequestMapping("updatedj")
+	public String updateDJ(HttpServletRequest req,Integer id){
+		String str="";
+		int i=service.updateDJ(id);
+		if(i>0){
+			req.setAttribute("msg", "发票号为"+id+"的发票已完成登记");
+			System.out.println(req.getAttribute("msg"));
+			str="/finance/invoicedj/invoicedj.jsp";
+			List<InvoiceCXDJ> list=service.invoiceCXQBDJ();
+			req.setAttribute("list", list);
+		}
+		
+		return str;
+	}
+	@RequestMapping("invoicecxdj")
+	public String invoiceCXDJ(HttpServletRequest req,InvoiceCXDJ in){
+		List<InvoiceCXDJ> list=service.invoiceCXDJ(in);
+		req.setAttribute("list", list);
+		return "/finance/invoicedj/invoicedj.jsp";
+	}
+}

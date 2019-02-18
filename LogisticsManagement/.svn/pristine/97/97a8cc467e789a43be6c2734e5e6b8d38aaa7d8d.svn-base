@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neusoft.ddzx.sgdd.model.TaskMapper">
+	<!-- 增加任务单 -->
+	<insert id="add">
+		insert into DD_TASKFORM
+		 values(TASKFORM_ID.NEXTVAL,#{taskStateId},#{taskTypeId},
+		#{orderId},#{substationId},#{taskDate},
+		#{shopId},#{shopNum},#{operator},
+		#{operationTime})
+	</insert>
+</mapper>
