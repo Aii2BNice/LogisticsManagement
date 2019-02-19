@@ -6,19 +6,14 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>物流配送平台-系统管理</title>
-<meta name="viewport"
-	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="renderer" content="webkit">
 <meta http-equiv="Cache-Control" content="no-siteapp" />
-<link rel="icon" type="image/png"
-	href="<%=request.getContextPath()%>/assets/i/favicon.png">
-<link rel="apple-touch-icon-precomposed"
-	href="<%=request.getContextPath()%>/assets/i/app-icon72x72@2x.png">
+<link rel="icon" type="image/png" href="<%=request.getContextPath()%>/assets/i/favicon.png">
+<link rel="apple-touch-icon-precomposed" href="<%=request.getContextPath()%>/assets/i/app-icon72x72@2x.png">
 <meta name="apple-mobile-web-app-title" content="Amaze UI" />
-<link rel="stylesheet"
-	href="<%=request.getContextPath()%>/assets/css/amazeui.min.css" />
-<link rel="stylesheet"
-	href="<%=request.getContextPath()%>/assets/css/admin.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/assets/css/amazeui.min.css" />
+<link rel="stylesheet" href="<%=request.getContextPath()%>/assets/css/admin.css">
 <script src="<%=request.getContextPath()%>/assets/js/jquery.min.js"></script>
 <script src="<%=request.getContextPath()%>/assets/js/app.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.3.1.min.js"></script>
